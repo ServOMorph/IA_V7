@@ -1,3 +1,8 @@
+## v1.7 — 2026-07-17
+
+### Corrigé
+- Pliage/dépliage des dossiers au clic simple, régressé par l'ajout du renommage inline par double-clic (aucun `onclick` n'avait été branché sur `.ia-dossier-nom`). Correction connexe des clés de `iaClickTimers` (préfixées par type) pour éviter une collision d'id entre dossiers et conversations.
+
 ## v1.6 — 2026-07-17
 
 ### Modifié

@@ -306,18 +306,33 @@ function iaBrancherArbo() {
     });
     document.querySelectorAll('.ia-conv-nom').forEach(el => {
         const id = +el.dataset.id;
+        const cle = 'conv-' + id;
         el.onclick = () => {
-            clearTimeout(iaClickTimers[id]);
-            iaClickTimers[id] = setTimeout(() => iaOuvrirConversation(id), 220);
+            clearTimeout(iaClickTimers[cle]);
+            iaClickTimers[cle] = setTimeout(() => iaOuvrirConversation(id), 220);
         };
         el.ondblclick = (e) => {
             e.stopPropagation();
-            clearTimeout(iaClickTimers[id]);
+            clearTimeout(iaClickTimers[cle]);
             iaRenommerInline(el, 'conv', id);
         };
     });
     document.querySelectorAll('.ia-dossier-nom').forEach(el => {
-        el.ondblclick = (e) => { e.stopPropagation(); iaRenommerInline(el, 'dossier', +el.dataset.id); };
+        const id = +el.dataset.id;
+        const cle = 'dossier-' + id;
+        el.onclick = () => {
+            clearTimeout(iaClickTimers[cle]);
+            iaClickTimers[cle] = setTimeout(() => {
+                if (iaDossiersOuverts.has(id)) iaDossiersOuverts.delete(id);
+                else iaDossiersOuverts.add(id);
+                iaChargerArbo();
+            }, 220);
+        };
+        el.ondblclick = (e) => {
+            e.stopPropagation();
+            clearTimeout(iaClickTimers[cle]);
+            iaRenommerInline(el, 'dossier', id);
+        };
     });
     document.querySelectorAll('.ia-dossier-nouvelle-conv').forEach(el => {
         el.onclick = (e) => { e.stopPropagation(); iaNouvelleConversationDansDossier(+el.dataset.id); };

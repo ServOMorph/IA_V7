@@ -1,6 +1,9 @@
 # Signals — ia_v7   (MAJ 2026-07-17)
 
 ## Actions ouvertes
+- [P1] Valider manuellement en app le correctif du pliage/dépliage des dossiers (clic simple) et du renommage inline (double-clic), après régression introduite par l'ajout du renommage.
+  fait quand: clic simple sur un nom de dossier le replie/déplie, double-clic ouvre le renommage inline, sans régression sur les conversations
+  réf: static/js/app.js (iaBrancherArbo, iaClickTimers)
 - [P1] Test manuel de `/rgpd` dans l'app lancée (`python run.py`), sur le fichier de démo.
   fait quand: `/rgpd tests-perso/doc_test_rgpd.txt` produit `doc_test_rgpd_anonymise.md` sans PII résiduelle, et le mode texte collé affiche le texte anonymisé
   réf: tests-perso/doc_test_rgpd.txt, src/ia_v7/services/commands.py
@@ -31,18 +34,17 @@
 # Session du 2026-07-17
 
 ## Décisions prises
-- Le rapport manuel sur le renommage est clos : la fonctionnalité était déjà livrée.
+- Bug de régression corrigé : le double-clic de renommage sur les dossiers avait supprimé le clic simple de pliage/dépliage.
 
 ## Livrables produits ou modifiés
-- `rapports_erreurs_manuels/idées.txt` : rapport traité et retiré.
-- `tests/test_api.py` : validation des API de renommage exécutée avec succès.
+- `static/js/app.js` : ajout d'un `onclick` (délai 220ms) sur `.ia-dossier-nom` pour restaurer le pliage/dépliage au clic simple, en parallèle du `ondblclick` de renommage. Correction connexe : clés de `iaClickTimers` préfixées (`conv-`/`dossier-`) pour éviter une collision d'id entre dossiers et conversations.
 
 ## Hypothèses validées / invalidées
-- VALIDE : dossiers et conversations se renomment en UI par double-clic ; les API associées passent leurs 16 tests.
-- EN ATTENTE : test manuel applicatif `/rgpd`, efficacité de `DELIVERABLE_INSTRUCTION` et décision de périmètre des cas ambigus.
+- VALIDE (diagnostic) : seul `ondblclick` était branché sur `.ia-dossier-nom`, sans `onclick` équivalent au pattern déjà utilisé pour `.ia-conv-nom` ; le toggle ▸/▾ (14px) restait le seul point cliquable fonctionnel.
+- EN ATTENTE : validation manuelle en app que le clic simple replie/déplie et que le double-clic renomme toujours ; test manuel applicatif `/rgpd` ; efficacité de `DELIVERABLE_INSTRUCTION` ; décision de périmètre des cas ambigus `/rgpd`.
 
 ## Prochaine étape exacte
-Lancer `python run.py`, tester `/rgpd tests-perso/doc_test_rgpd.txt`, puis vérifier le texte collé dans l'interface.
+Lancer `python run.py`, vérifier au clic simple le pliage/dépliage d'un dossier et au double-clic son renommage inline ; puis reprendre le test manuel `/rgpd` en attente.
 
 ## Question bloquante pour la session suivante
 Aucune
