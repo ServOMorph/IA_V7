@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
+    <title>IA V7 — SérénIA Tech</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="{{ url_for('static', filename='vendor/marked.umd.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/purify.min.js') }}"></script>
+</head>
+<body>
+    <header class="app-header">
+        <div>
+            <div class="app-brand">SérénIA Tech</div>
+            <div class="app-product">IA locale</div>
+        </div>
+        <span class="app-version">V7 standalone</span>
+    </header>
+    <main id="panel-ia" class="main-panel active">
+        <div class="ia-layout">
+            <aside class="ia-sidebar" aria-label="Conversations">
+                <div class="ia-sidebar-actions">
+                    <button id="ia-btn-nouvelle-conv" class="ia-btn-primary">+ Conversation</button>
+                    <button id="ia-btn-nouveau-dossier" class="ia-btn-ghost">+ Dossier</button>
+                </div>
+                <label class="ia-ephemere-toggle">
+                    <input type="checkbox" id="ia-ephemere"> Mode éphémère
+                </label>
+                <div id="ia-arbo" class="ia-arbo"></div>
+            </aside>
+            <section class="ia-chat" aria-label="Discussion">
+                <div class="ia-topbar">
+                    <select id="ia-select-modele" class="ia-select" aria-label="Modèle Ollama"></select>
+                    <span id="ia-statut-serveur" class="ia-pastille" title="Serveur Ollama"></span>
+                    <span id="ia-modele-charge" class="ia-modele-charge" title="Modèle chargé"></span>
+                    <button id="ia-btn-serveur" class="ia-btn-mini">Démarrer serveur</button>
+                    <button id="ia-btn-charger" class="ia-btn-mini">Charger modèle</button>
+                    <button id="ia-btn-decharger" class="ia-btn-mini">Décharger</button>
+                    <button id="ia-btn-defaut" class="ia-btn-mini" title="Définir ce modèle comme défaut pour les nouvelles conversations">Défaut</button>
+                    <span id="ia-titre-conv" class="ia-titre-conv"></span>
+                </div>
+                <div id="ia-messages" class="ia-messages" aria-live="polite"></div>
+                <div class="ia-saisie">
+                    <div id="ia-suggestions" class="ia-suggestions" style="display:none;"></div>
+                    <textarea id="ia-input" rows="1" placeholder="Écrire un message… (Entrée pour envoyer, Maj+Entrée pour un saut de ligne)" aria-label="Message"></textarea>
+                    <button id="ia-btn-envoyer" class="ia-btn-primary">Envoyer</button>
+                    <button id="ia-btn-stop" class="ia-btn-danger" style="display:none;">Stop</button>
+                </div>
+            </section>
+        </div>
+    </main>
+    <noscript>JavaScript doit être activé pour utiliser IA V7.</noscript>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', chargerIA);
+    </script>
+</body>
+</html>

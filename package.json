@@ -1,0 +1,15 @@
+{
+  "name": "ia-v7-ui-tests",
+  "private": true,
+  "scripts": {
+    "test:ui": "playwright test",
+    "test:ui:real": "playwright test -c playwright.real.config.js",
+    "test:ui:headed": "playwright test --headed",
+    "test:ui:report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.1",
+    "dompurify": "^3.4.12",
+    "marked": "^18.0.6"
+  }
+}
