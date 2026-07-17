@@ -1,3 +1,8 @@
+## v1.1 — 2026-07-17
+
+### Modifié
+- Roadmaps terminées désormais archivées dans `_archives/` avec un index de suivi (`_archives/index.md`).
+
 ## v1.0 — 2026-07-17
 
 ### Ajouté

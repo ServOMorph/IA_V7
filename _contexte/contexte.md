@@ -7,8 +7,9 @@ Application autonome pilotant Ollama local : gestion de dossiers et conversation
 Python 3.11+, SQLite, Node.js 20+ et Playwright pour les tests UI, Ollama local
 
 ## État actuel (réécrit intégralement à chaque /close)
-Système de commandes `/xxx` intercepté côté serveur, livré et testé (backend + UI). Commandes disponibles : `/help`, `/write <nom_fichier> [<path>]`. Roadmap `roadmap_commandes.md` entièrement [FAIT].
+Système de commandes `/xxx` intercepté côté serveur, livré et testé (backend + UI). Commandes disponibles : `/help`, `/write <nom_fichier> [<path>]`. Roadmap terminée, archivée dans `_archives/roadmap_commandes.md`.
 
 ## Décisions structurantes (append only — 10 entrées max, archiver au-delà)
 - 2026-07-17 : Initialisation du protocole vibecoding.
 - 2026-07-17 : Ajout du système de commandes `/xxx` (parseur, registre, `/help`, `/write`) intercepté avant Ollama.
+- 2026-07-17 : Roadmaps terminées archivées dans `_archives/` (avec `index.md` de suivi).
