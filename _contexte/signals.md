@@ -24,22 +24,21 @@
 - Capture d'écran : `html2canvas` re-rend le DOM (fidélité non pixel-perfect) ; alternative `getDisplayMedia` écartée (prompt à chaque capture, non testable).
 - `/start` signale désormais les fichiers présents dans `rapports_erreurs_manuels/` (sans les lire).
 - La consigne `DELIVERABLE_INSTRUCTION` est un prompt système, pas du code déterministe : son respect par le modèle local n'est pas garanti même renforcée. Le fallback côté client a été écarté pour l'instant (choix explicite).
+- Le renommage de dossiers et conversations est déjà disponible par double-clic ; la validation API est verte.
 
 ## Dernière session (2026-07-17)
 <!-- Écrasé intégralement par /close. Synthèse < 25 lignes. -->
 # Session du 2026-07-17
 
 ## Décisions prises
-- Le benchmark `/rgpd` utilise un corpus synthétique, une comparaison exacte et des seuils de non-régression.
-- Les améliorations déterministes prioritaires sont appliquées ; les cas ambigus restent hors du périmètre standard.
+- Le rapport manuel sur le renommage est clos : la fonctionnalité était déjà livrée.
 
 ## Livrables produits ou modifiés
-- `benchmarks/rgpd_corpus.json`, `scripts/benchmark_rgpd.py`, `benchmarks/rapport_rgpd.md` : benchmark et rapport généré.
-- `src/ia_v7/services/commands.py` : anonymisation renforcée pour IBAN, IPv4, cartes, adresses et emails Unicode.
-- `tests/test_commands.py`, `tests/test_benchmark_rgpd.py` : couverture des règles et du benchmark.
+- `rapports_erreurs_manuels/idées.txt` : rapport traité et retiré.
+- `tests/test_api.py` : validation des API de renommage exécutée avec succès.
 
 ## Hypothèses validées / invalidées
-- VALIDE : le benchmark atteint 21/26 cas conformes, 24/29 PII absentes littéralement et ses seuils sont respectés.
+- VALIDE : dossiers et conversations se renomment en UI par double-clic ; les API associées passent leurs 16 tests.
 - EN ATTENTE : test manuel applicatif `/rgpd`, efficacité de `DELIVERABLE_INSTRUCTION` et décision de périmètre des cas ambigus.
 
 ## Prochaine étape exacte

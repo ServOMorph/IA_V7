@@ -1,3 +1,8 @@
+## v1.6 — 2026-07-17
+
+### Modifié
+- Rapport manuel sur le renommage traité : la fonctionnalité existante de renommage par double-clic des dossiers et conversations a été confirmée et ses API validées.
+
 ## v1.5 — 2026-07-17
 
 ### Ajouté

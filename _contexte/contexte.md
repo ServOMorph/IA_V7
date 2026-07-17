@@ -10,7 +10,8 @@ Python 3.11+, SQLite, Node.js 20+ et Playwright pour les tests UI, Ollama local
 Commandes disponibles : `/help`, `/write`, `/rgpd` ; l'anonymisation PII fonctionne en mode fichier ou texte.
 Le benchmark `/rgpd` repose sur 26 cas synthétiques, atteint 21 cas exactement conformes et verrouille 21 cas obligatoires.
 IBAN atypiques, IPv4, cartes, adresses avec ville/code postal et emails à ponctuation Unicode sont couverts par des règles déterministes.
-Tests verts : 56 pytest ; Playwright desktop et mobile validés lors des sessions précédentes.
+Le renommage des dossiers et conversations est disponible par double-clic ; ses API sont validées (16 tests ciblés).
+Tests verts : 56 pytest lors de la session précédente ; Playwright desktop et mobile validés lors des sessions précédentes.
 En attente : test manuel `/rgpd` dans l'app, efficacité de `DELIVERABLE_INSTRUCTION` et décisions sur les cas ambigus.
 
 ## Décisions structurantes (append only — 10 entrées max, archiver au-delà)
@@ -22,3 +23,4 @@ En attente : test manuel `/rgpd` dans l'app, efficacité de `DELIVERABLE_INSTRUC
 - 2026-07-17 : `DELIVERABLE_INSTRUCTION` reformulée de façon plus impérative suite à un manquement du modèle ; fallback client-side écarté pour l'instant.
 - 2026-07-17 : Le benchmark `/rgpd` devient le garde-fou de non-régression de l'anonymisation déterministe.
 - 2026-07-17 : Les cas ambigus (noms sans civilité, pseudonymes, formats obfusqués ou fragmentés) restent hors du périmètre standard.
+- 2026-07-17 : Le rapport manuel sur le renommage est clos : cette fonctionnalité était déjà implémentée et testée.
