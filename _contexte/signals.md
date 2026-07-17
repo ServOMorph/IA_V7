@@ -1,6 +1,21 @@
 # Signals — ia_v7   (MAJ 2026-07-17)
 
 ## Actions ouvertes
+- [P1] Construire un benchmark automatisé de `/rgpd` (demande utilisateur, session 2026-07-17, non commencé — à démarrer en priorité).
+  Idée : fournir des textes de difficulté croissante à `anonymize_text()`, comparer aux PII attendues, produire un rapport lisible (résultats + pistes d'amélioration).
+  Difficultés déjà explorées avant l'interruption (à valider avec l'utilisateur en début de session) :
+    1. Facile : email/téléphone/IBAN isolés, format standard
+    2. Moyen : adresses postales, noms avec civilité, NIR
+    3. Difficile : formats atypiques (tél. sans espaces, IBAN espacé différemment, email en continu)
+    4. Très difficile : noms SANS civilité (limite connue, non détectée par regex), pseudos, PII en tableau/CSV, plusieurs PII par phrase, faux positifs potentiels
+    5. Adversarial : PII obfusquées volontairement (ex. "jean point dupont at gmail point com"), homoglyphes unicode, PII fragmentées sur plusieurs lignes
+  Code de référence lu : src/ia_v7/services/commands.py — `SENSITIVE_PATTERNS` (l.129-144), `anonymize_text()` (l.147-152), `_handle_rgpd()` (l.164-206).
+  Fichier de test existant : tests-perso/doc_test_rgpd.txt (cas simple, déjà utilisé pour test manuel /rgpd).
+  Décisions NON prises (à trancher en début de session suivante) :
+    - Emplacement du script/corpus (probablement tests-perso/ ou un nouveau dossier dédié benchmark)
+    - Format du ground truth (comptage par catégorie vs correspondance exacte de spans)
+    - Sortie : script Python (pytest ou standalone) + rapport Markdown généré automatiquement
+  réf: src/ia_v7/services/commands.py, tests-perso/doc_test_rgpd.txt
 - [P1] Test manuel de `/rgpd` dans l'app lancée (`python run.py`), sur le fichier de démo.
   fait quand: `/rgpd tests-perso/doc_test_rgpd.txt` produit `doc_test_rgpd_anonymise.md` sans PII résiduelle, et le mode texte collé affiche le texte anonymisé
   réf: tests-perso/doc_test_rgpd.txt, src/ia_v7/services/commands.py
@@ -29,18 +44,18 @@
 # Session du 2026-07-17
 
 ## Décisions prises
-- Rapport dans `rapports_erreurs_manuels/` (capture) mal interprété au départ : implémentation d'une modal `/rgpd` faite puis annulée (`git checkout`) après clarification.
-- Vrai problème identifié : le modèle Ollama a répondu en texte brut au lieu d'utiliser le bloc ```livrable``` lors d'une reformulation.
-- Choix : renforcer la consigne système `DELIVERABLE_INSTRUCTION` (formulation plus impérative) plutôt que fallback client ou aucune action.
+- Rapport de capture dans `rapports_erreurs_manuels/` traité manuellement par l'utilisateur : fichier supprimé (demande explicite).
+- Nouvelle idée actée : construire un benchmark automatisé de `/rgpd` (textes de difficulté croissante, rapport lisible + pistes d'amélioration). Session interrompue avant tout code.
 
 ## Livrables produits ou modifiés
-- src/ia_v7/services/chat.py : `DELIVERABLE_INSTRUCTION` reformulée (consigne plus stricte, déclencheurs élargis)
+- rapports_erreurs_manuels/capture_20260717_200640.png : supprimé (traité).
+- _contexte/signals.md : ajout de l'action benchmark `/rgpd` avec contexte détaillé.
 
 ## Hypothèses validées / invalidées
-- EN ATTENTE : efficacité du renforcement de la consigne — non vérifiable de façon déterministe, dépend du comportement du modèle en usage réel.
+- EN ATTENTE : efficacité du renforcement de `DELIVERABLE_INSTRUCTION` (reportée, pas observée cette session).
 
 ## Prochaine étape exacte
-Observer en usage réel si le modèle respecte mieux la consigne livrable ; si récidive, statuer sur un fallback client ou un post-traitement serveur. Puis reprendre le test manuel de `/rgpd`.
+Démarrer le benchmark `/rgpd` : trancher emplacement du script/corpus, format du ground truth, puis construire corpus de difficulté croissante + script de scoring + rapport Markdown. Voir action [P1] détaillée ci-dessus.
 
 ## Question bloquante pour la session suivante
-Aucune.
+Aucune (décisions de conception à trancher en session, pas bloquantes pour démarrer).

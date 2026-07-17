@@ -11,7 +11,7 @@ Commandes disponibles : `/help`, `/write`, `/rgpd` (anonymisation PII par regex,
 Capture d'écran UI : bouton + overlay rectangle ajustable, PNG enregistrés dans `rapports_erreurs_manuels/` via `POST /api/ia/captures`.
 Consigne système `DELIVERABLE_INSTRUCTION` renforcée (bloc ```livrable``` obligatoire) après un manquement observé du modèle Ollama.
 Tests verts : 46 pytest, Playwright desktop + mobile.
-En attente : test manuel de `/rgpd`, vérification de l'efficacité de la consigne livrable renforcée.
+En attente : test manuel de `/rgpd`, vérification de l'efficacité de la consigne livrable renforcée, démarrage du benchmark automatisé `/rgpd` (voir signals.md).
 
 ## Décisions structurantes (append only — 10 entrées max, archiver au-delà)
 - 2026-07-17 : Initialisation du protocole vibecoding.

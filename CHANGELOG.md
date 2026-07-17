@@ -1,3 +1,9 @@
+## v1.4 — 2026-07-17
+
+### Modifié
+- Rapport d'erreur manuel traité et supprimé de `rapports_erreurs_manuels/`.
+- Planification d'un benchmark automatisé pour `/rgpd` (corpus de difficulté croissante, rapport lisible + pistes d'amélioration) ; contexte détaillé consigné dans `_contexte/signals.md`, à démarrer en priorité session suivante.
+
 ## v1.3 — 2026-07-17
 
 ### Modifié
