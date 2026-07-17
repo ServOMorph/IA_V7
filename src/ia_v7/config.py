@@ -18,6 +18,7 @@ class Settings:
     database_path: Path
     default_model_path: Path
     export_dir: Path
+    captures_dir: Path
     ollama_url: str
     default_model: str
     num_ctx: int
@@ -36,6 +37,9 @@ class Settings:
             ).resolve(),
             export_dir=Path(
                 os.getenv("IA_V7_EXPORT_DIR", PROJECT_ROOT / "exports")
+            ).resolve(),
+            captures_dir=Path(
+                os.getenv("IA_V7_CAPTURES_DIR", PROJECT_ROOT / "rapports_erreurs_manuels")
             ).resolve(),
             ollama_url=os.getenv("OLLAMA_URL", "http://127.0.0.1:11434").rstrip("/"),
             default_model=os.getenv("IA_V7_DEFAULT_MODEL", "gemma4:e4b"),

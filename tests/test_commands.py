@@ -145,3 +145,88 @@ def test_write_missing_filename(app):
     service = make_service(app)
     result = service.execute(1, "/write")
     assert not result.success
+
+
+def test_rgpd_text_mode(app):
+    service = make_service(app)
+    text = (
+        "/rgpd Contact : jean.dupont@example.com ou 06 12 34 56 78.\n"
+        "Mme Durand habite 12 rue des Lilas, 75011 Paris."
+    )
+    result = service.execute(1, text)
+    assert result.success
+    assert "jean.dupont@example.com" not in result.message
+    assert "06 12 34 56 78" not in result.message
+    assert "Mme Durand" not in result.message
+    assert "rue des Lilas" not in result.message
+    assert "[DONNÉE_SENSIBLE]" in result.message
+
+
+def test_rgpd_text_mode_preserves_newlines(app):
+    service = make_service(app)
+    result = service.execute(1, "/rgpd ligne un\nligne deux")
+    assert result.success
+    assert "ligne un\nligne deux" in result.message
+
+
+def test_rgpd_file_mode(app, tmp_path):
+    service = make_service(app)
+    source = tmp_path / "clients.txt"
+    source.write_text(
+        "M. Martin, tel 0612345678, mail martin@societe.fr, IBAN FR7630006000011234567890189",
+        encoding="utf-8",
+    )
+    result = service.execute(1, f"/rgpd {source}")
+    assert result.success
+    target = tmp_path / "clients_anonymise.md"
+    assert target.exists()
+    content = target.read_text(encoding="utf-8")
+    assert "martin@societe.fr" not in content
+    assert "0612345678" not in content
+    assert "FR76" not in content
+    assert "M. Martin" not in content
+    assert "[DONNÉE_SENSIBLE]" in content
+
+
+def test_rgpd_file_uppercase_command(app, tmp_path):
+    service = make_service(app)
+    source = tmp_path / "note.txt"
+    source.write_text("mail : a@b.fr", encoding="utf-8")
+    result = service.execute(1, f"/RGPD {source}")
+    assert result.success
+    assert (tmp_path / "note_anonymise.md").exists()
+
+
+def test_rgpd_file_not_found(app, tmp_path):
+    service = make_service(app)
+    result = service.execute(1, f"/rgpd {tmp_path / 'absent.txt'}")
+    assert not result.success
+    assert "non trouvé" in result.message
+
+
+def test_rgpd_refuses_overwrite(app, tmp_path):
+    service = make_service(app)
+    source = tmp_path / "doc.txt"
+    source.write_text("mail : a@b.fr", encoding="utf-8")
+    existing = tmp_path / "doc_anonymise.md"
+    existing.write_text("ancien", encoding="utf-8")
+    result = service.execute(1, f"/rgpd {source}")
+    assert not result.success
+    assert "existe déjà" in result.message
+    assert existing.read_text(encoding="utf-8") == "ancien"
+
+
+def test_rgpd_invalid_format(app, tmp_path):
+    service = make_service(app)
+    source = tmp_path / "image.bin"
+    source.write_bytes(b"\xff\xfe\x00\x01\x80\x81")
+    result = service.execute(1, f"/rgpd {source}")
+    assert not result.success
+    assert "Format invalide" in result.message
+
+
+def test_rgpd_missing_args(app):
+    service = make_service(app)
+    result = service.execute(1, "/rgpd")
+    assert not result.success
+    assert "Usage" in result.message

@@ -672,6 +672,153 @@ async function iaDefinirModelDefault() {
     }
 }
 
+// --- Capture d'écran ----------------------------------------------------
+
+let iaCaptureEtat = null;
+
+function iaCaptureToast(message, erreur) {
+    const toast = document.createElement('div');
+    toast.className = 'ia-capture-toast' + (erreur ? ' ia-capture-toast-erreur' : '');
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3500);
+}
+
+function iaCaptureDemarrer() {
+    if (iaCaptureEtat) return;
+    const overlay = document.createElement('div');
+    overlay.id = 'ia-capture-overlay';
+    overlay.innerHTML =
+        '<div class="ia-capture-aide">Tracez un rectangle à la souris, ajustez-le, puis validez.</div>' +
+        '<div id="ia-capture-rect" style="display:none;">' +
+        ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'].map(d =>
+            `<span class="ia-capture-poignee ia-capture-poignee-${d}" data-dir="${d}"></span>`).join('') +
+        '</div>' +
+        '<div id="ia-capture-actions" style="display:none;">' +
+        '<button id="ia-capture-valider" class="ia-btn-primary">Valider</button>' +
+        '<button id="ia-capture-annuler" class="ia-btn-mini">Annuler</button>' +
+        '</div>';
+    document.body.appendChild(overlay);
+    iaCaptureEtat = { overlay, rect: null, drag: null };
+
+    overlay.onmousedown = (e) => {
+        if (e.target.closest('#ia-capture-actions')) return;
+        const poignee = e.target.closest('.ia-capture-poignee');
+        const rectEl = document.getElementById('ia-capture-rect');
+        if (poignee) {
+            iaCaptureEtat.drag = { mode: 'resize', dir: poignee.dataset.dir, x: e.clientX, y: e.clientY, base: { ...iaCaptureEtat.rect } };
+        } else if (e.target === rectEl) {
+            iaCaptureEtat.drag = { mode: 'move', x: e.clientX, y: e.clientY, base: { ...iaCaptureEtat.rect } };
+        } else {
+            iaCaptureEtat.rect = { x: e.clientX, y: e.clientY, w: 0, h: 0 };
+            iaCaptureEtat.drag = { mode: 'draw', x: e.clientX, y: e.clientY };
+        }
+        e.preventDefault();
+    };
+    overlay.onmousemove = (e) => {
+        const etat = iaCaptureEtat;
+        if (!etat || !etat.drag) return;
+        const dx = e.clientX - etat.drag.x;
+        const dy = e.clientY - etat.drag.y;
+        if (etat.drag.mode === 'draw') {
+            etat.rect = {
+                x: Math.min(etat.drag.x, e.clientX),
+                y: Math.min(etat.drag.y, e.clientY),
+                w: Math.abs(dx),
+                h: Math.abs(dy),
+            };
+        } else if (etat.drag.mode === 'move') {
+            etat.rect = { ...etat.drag.base, x: etat.drag.base.x + dx, y: etat.drag.base.y + dy };
+        } else {
+            const b = etat.drag.base;
+            const dir = etat.drag.dir;
+            let { x, y, w, h } = b;
+            if (dir.includes('w')) { x = b.x + dx; w = b.w - dx; }
+            if (dir.includes('e')) { w = b.w + dx; }
+            if (dir.includes('n')) { y = b.y + dy; h = b.h - dy; }
+            if (dir.includes('s')) { h = b.h + dy; }
+            if (w < 0) { x += w; w = -w; }
+            if (h < 0) { y += h; h = -h; }
+            etat.rect = { x, y, w, h };
+        }
+        iaCaptureAfficherRect();
+    };
+    overlay.onmouseup = () => {
+        if (!iaCaptureEtat || !iaCaptureEtat.drag) return;
+        const dessin = iaCaptureEtat.drag.mode === 'draw';
+        iaCaptureEtat.drag = null;
+        if (dessin && (!iaCaptureEtat.rect || iaCaptureEtat.rect.w < 5 || iaCaptureEtat.rect.h < 5)) {
+            iaCaptureEtat.rect = null;
+            iaCaptureAfficherRect();
+        }
+    };
+    document.getElementById('ia-capture-valider').onclick = iaCaptureValider;
+    document.getElementById('ia-capture-annuler').onclick = iaCaptureFermer;
+    iaCaptureEtat.echap = (e) => { if (e.key === 'Escape') iaCaptureFermer(); };
+    document.addEventListener('keydown', iaCaptureEtat.echap);
+}
+
+function iaCaptureAfficherRect() {
+    const etat = iaCaptureEtat;
+    if (!etat) return;
+    const rectEl = document.getElementById('ia-capture-rect');
+    const actions = document.getElementById('ia-capture-actions');
+    if (!etat.rect) {
+        rectEl.style.display = 'none';
+        actions.style.display = 'none';
+        return;
+    }
+    rectEl.style.display = 'block';
+    rectEl.style.left = etat.rect.x + 'px';
+    rectEl.style.top = etat.rect.y + 'px';
+    rectEl.style.width = etat.rect.w + 'px';
+    rectEl.style.height = etat.rect.h + 'px';
+    actions.style.display = 'flex';
+    const sousRect = etat.rect.y + etat.rect.h + 46;
+    actions.style.top = Math.min(sousRect, window.innerHeight - 46) + 'px';
+    actions.style.left = Math.max(etat.rect.x, 8) + 'px';
+}
+
+function iaCaptureFermer() {
+    if (!iaCaptureEtat) return;
+    document.removeEventListener('keydown', iaCaptureEtat.echap);
+    iaCaptureEtat.overlay.remove();
+    iaCaptureEtat = null;
+}
+
+async function iaCaptureValider() {
+    const etat = iaCaptureEtat;
+    if (!etat || !etat.rect || etat.rect.w < 5 || etat.rect.h < 5) return;
+    const zone = { ...etat.rect };
+    iaCaptureFermer();
+    if (typeof html2canvas === 'undefined') {
+        iaCaptureToast('html2canvas indisponible', true);
+        return;
+    }
+    try {
+        const canvas = await html2canvas(document.body, {
+            x: zone.x + window.scrollX,
+            y: zone.y + window.scrollY,
+            width: zone.w,
+            height: zone.h,
+            logging: false,
+        });
+        const image = canvas.toDataURL('image/png');
+        const { ok, data } = await iaFetchJSON('/api/ia/captures', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image }),
+        });
+        if (ok && data && data.fichier) {
+            iaCaptureToast('Capture enregistrée : ' + data.fichier);
+        } else {
+            iaCaptureToast('Erreur : ' + ((data && data.error) || 'enregistrement impossible'), true);
+        }
+    } catch (e) {
+        iaCaptureToast('Erreur de capture : ' + e.message, true);
+    }
+}
+
 // --- Initialisation -----------------------------------------------------
 
 function iaBrancherUI() {
@@ -685,6 +832,7 @@ function iaBrancherUI() {
     document.getElementById('ia-btn-charger').onclick = iaChargerModeleCourant;
     document.getElementById('ia-btn-decharger').onclick = iaDechargerModeleCourant;
     document.getElementById('ia-btn-defaut').onclick = iaDefinirModelDefault;
+    document.getElementById('ia-btn-capture').onclick = iaCaptureDemarrer;
 
     const input = document.getElementById('ia-input');
     input.onkeydown = (e) => {

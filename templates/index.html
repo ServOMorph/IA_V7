@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <script src="{{ url_for('static', filename='vendor/marked.umd.js') }}"></script>
     <script src="{{ url_for('static', filename='vendor/purify.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/html2canvas.min.js') }}"></script>
 </head>
 <body>
     <header class="app-header">
@@ -42,6 +43,7 @@
                     <button id="ia-btn-charger" class="ia-btn-mini">Charger modèle</button>
                     <button id="ia-btn-decharger" class="ia-btn-mini">Décharger</button>
                     <button id="ia-btn-defaut" class="ia-btn-mini" title="Définir ce modèle comme défaut pour les nouvelles conversations">Défaut</button>
+                    <button id="ia-btn-capture" class="ia-btn-mini" title="Capturer une zone de l'écran vers rapports_erreurs_manuels">Capture</button>
                     <span id="ia-titre-conv" class="ia-titre-conv"></span>
                 </div>
                 <div id="ia-messages" class="ia-messages" aria-live="polite"></div>

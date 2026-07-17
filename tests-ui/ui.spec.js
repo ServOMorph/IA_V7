@@ -126,11 +126,46 @@ test('parcours UI complet sur ordinateur', async ({ page, context }, testInfo) =
   await expect(writeBubble).toContainText('Fichier écrit');
   await expect(writeBubble).toHaveClass(/ia-bulle-commande/);
 
+  await page.locator('#ia-input').fill('/rgpd Contact : jean.dupont@example.com au 06 12 34 56 78');
+  await page.locator('#ia-btn-envoyer').click();
+  const rgpdBubble = page.locator('.ia-bulle-assistant').last();
+  await expect(rgpdBubble).toContainText('[DONNÉE_SENSIBLE]');
+  await expect(rgpdBubble).not.toContainText('jean.dupont@example.com');
+  await expect(rgpdBubble).toHaveClass(/ia-bulle-commande/);
+
   await page.locator('#ia-input').fill('/inconnue');
   await page.locator('#ia-btn-envoyer').click();
   const commandeErreurBubble = page.locator('.ia-bulle-assistant').last();
   await expect(commandeErreurBubble).toContainText('Commande inconnue');
   await expect(commandeErreurBubble).toHaveClass(/ia-bulle-commande-erreur/);
+
+  await page.locator('#ia-btn-capture').click();
+  await expect(page.locator('#ia-capture-overlay')).toBeVisible();
+  await page.mouse.move(400, 300);
+  await page.mouse.down();
+  await page.mouse.move(700, 500);
+  await page.mouse.up();
+  await expect(page.locator('#ia-capture-rect')).toBeVisible();
+  await expect(page.locator('#ia-capture-valider')).toBeVisible();
+  await page.mouse.move(700, 500);
+  await page.mouse.down();
+  await page.mouse.move(760, 560);
+  await page.mouse.up();
+  const rectBox = await page.locator('#ia-capture-rect').boundingBox();
+  expect(Math.round(rectBox.width)).toBeGreaterThan(350);
+  const capturePromise = page.waitForResponse(r =>
+    r.url().includes('/api/ia/captures') && r.request().method() === 'POST');
+  await page.locator('#ia-capture-valider').click();
+  const captureResponse = await capturePromise;
+  expect(captureResponse.status()).toBe(201);
+  const captureBody = await captureResponse.json();
+  expect(captureBody.fichier).toMatch(/^capture_.*\.png$/);
+  await expect(page.locator('.ia-capture-toast')).toContainText('Capture enregistrée');
+  await expect(page.locator('#ia-capture-overlay')).toHaveCount(0);
+
+  await page.locator('#ia-btn-capture').click();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#ia-capture-overlay')).toHaveCount(0);
 
   await page.locator('#ia-input').fill('ERREUR_RESEAU_TEST');
   await page.locator('#ia-input').press('Enter');
@@ -144,7 +179,7 @@ test('parcours UI complet sur ordinateur', async ({ page, context }, testInfo) =
   await folder.locator('.ia-dossier-toggle').click();
   conversation = folder.locator('.ia-conv').filter({ hasText: 'Conversation UI automatisée' });
   await conversation.locator('.ia-conv-nom').click();
-  await expect(page.locator('.ia-bulle-user')).toHaveCount(8);
+  await expect(page.locator('.ia-bulle-user')).toHaveCount(9);
   expect(await page.locator('.ia-bulle-assistant').count()).toBeGreaterThanOrEqual(3);
 
   await page.locator('#ia-ephemere').check();

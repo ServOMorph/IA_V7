@@ -138,6 +138,22 @@ button, select, textarea, input { font: inherit; }
 .ia-suggestion span { color: var(--color-text-muted); }
 .ia-suggestion:hover, .ia-suggestion.ia-suggestion-active { background: var(--color-bg-dark); }
 
+#ia-capture-overlay { position: fixed; inset: 0; z-index: 100; cursor: crosshair; background: rgba(0, 0, 0, 0.25); }
+.ia-capture-aide { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); background: var(--color-bg); color: var(--color-text); padding: 6px 14px; border-radius: var(--radius-md); font-size: 0.85rem; pointer-events: none; }
+#ia-capture-rect { position: absolute; border: 2px solid var(--color-primary); background: rgba(255, 255, 255, 0.12); box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.35); cursor: move; }
+.ia-capture-poignee { position: absolute; width: 10px; height: 10px; background: var(--color-primary); border: 1px solid var(--color-bg); border-radius: 2px; }
+.ia-capture-poignee-nw { top: -6px; left: -6px; cursor: nwse-resize; }
+.ia-capture-poignee-n { top: -6px; left: calc(50% - 5px); cursor: ns-resize; }
+.ia-capture-poignee-ne { top: -6px; right: -6px; cursor: nesw-resize; }
+.ia-capture-poignee-e { top: calc(50% - 5px); right: -6px; cursor: ew-resize; }
+.ia-capture-poignee-se { bottom: -6px; right: -6px; cursor: nwse-resize; }
+.ia-capture-poignee-s { bottom: -6px; left: calc(50% - 5px); cursor: ns-resize; }
+.ia-capture-poignee-sw { bottom: -6px; left: -6px; cursor: nesw-resize; }
+.ia-capture-poignee-w { top: calc(50% - 5px); left: -6px; cursor: ew-resize; }
+#ia-capture-actions { position: absolute; display: flex; gap: 8px; }
+.ia-capture-toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 110; background: var(--color-bg); color: var(--color-text); border: 1px solid var(--color-primary); padding: 8px 16px; border-radius: var(--radius-md); font-size: 0.85rem; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); }
+.ia-capture-toast-erreur { border-color: var(--color-error); }
+
 .ia-bulle-commande { border-style: dashed; }
 .ia-bulle-commande .ia-bulle-corps { font-family: monospace; white-space: pre-wrap; }
 .ia-bulle-commande-erreur { border-color: var(--color-error); }

@@ -1,0 +1,19 @@
+Fiche client - dossier n°4821
+
+Nom du client : M. Jean Dupont
+Contact : jean.dupont@example.com
+Téléphone : 06 12 34 56 78
+Adresse : 12 rue des Lilas, 75011 Paris
+
+Référent dossier : Mme Sophie Martin
+Email référent : sophie.martin@societe.fr
+
+Coordonnées bancaires (prélèvement) :
+IBAN : FR76 3000 6000 0112 3456 7890 189
+Carte utilisée pour l'acompte : 4539 1488 0343 6467
+
+Identifiant sécurité sociale : 1 85 07 75 108 121 45
+
+Adresse IP de connexion au portail client : 192.168.1.42
+
+Note interne : dossier suivi par Dr Bernard, contacter au 07 98 76 54 32 en cas d'urgence.

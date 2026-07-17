@@ -85,6 +85,7 @@ def app(tmp_path, fake_ollama):
         database_path=tmp_path / "test.db",
         default_model_path=tmp_path / "default_model.txt",
         export_dir=tmp_path / "exports",
+        captures_dir=tmp_path / "captures",
     )
     application = create_app(settings=settings, ollama_client=fake_ollama)
     application.config.update(TESTING=True)

@@ -22,7 +22,7 @@ def create_app(
         static_folder=str(settings.project_root / "static"),
         template_folder=str(settings.project_root / "templates"),
     )
-    app.config.update(JSON_AS_ASCII=False, MAX_CONTENT_LENGTH=1024 * 1024)
+    app.config.update(JSON_AS_ASCII=False, MAX_CONTENT_LENGTH=10 * 1024 * 1024)
 
     database = Database(settings.database_path)
     database.initialize()

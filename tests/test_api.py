@@ -140,3 +140,52 @@ def test_ollama_endpoints(client, fake_ollama):
     client.post("/api/ia/serveur/start")
     assert fake_ollama.started is True
 
+
+
+PNG_1X1 = (
+    "data:image/png;base64,"
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="
+)
+
+
+def test_capture_saves_png(client, app):
+    response = client.post("/api/ia/captures", json={"image": PNG_1X1})
+    assert response.status_code == 201
+    filename = response.get_json()["fichier"]
+    assert filename.startswith("capture_") and filename.endswith(".png")
+    captures_dir = app.extensions["ia_v7"]["settings"].captures_dir
+    saved = captures_dir / filename
+    assert saved.exists()
+    assert saved.read_bytes().startswith(b"\x89PNG")
+
+
+def test_capture_unique_filenames(client, app):
+    first = client.post("/api/ia/captures", json={"image": PNG_1X1})
+    second = client.post("/api/ia/captures", json={"image": PNG_1X1})
+    assert first.status_code == 201 and second.status_code == 201
+    assert first.get_json()["fichier"] != second.get_json()["fichier"]
+
+
+def test_capture_rejects_missing_image(client):
+    assert client.post("/api/ia/captures", json={}).status_code == 400
+
+
+def test_capture_rejects_non_data_url(client):
+    response = client.post("/api/ia/captures", json={"image": "pas une image"})
+    assert response.status_code == 400
+
+
+def test_capture_rejects_invalid_base64(client):
+    response = client.post(
+        "/api/ia/captures", json={"image": "data:image/png;base64,%%%invalide%%%"}
+    )
+    assert response.status_code == 400
+
+
+def test_capture_rejects_non_png_content(client):
+    import base64
+
+    fake = "data:image/png;base64," + base64.b64encode(b"GIF89a contenu").decode()
+    response = client.post("/api/ia/captures", json={"image": fake})
+    assert response.status_code == 400
+    assert "PNG" in response.get_json()["error"]

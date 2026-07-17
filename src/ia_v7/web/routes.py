@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import base64
+import binascii
+from datetime import datetime
 import sqlite3
 from typing import Any
 
@@ -175,6 +178,37 @@ def list_commands() -> Response:
             for command in registry.list_commands()
         ]
     )
+
+
+PNG_MAGIC = b"\x89PNG\r\n\x1a\n"
+PNG_DATA_URL_PREFIX = "data:image/png;base64,"
+
+
+@api_bp.post("/captures")
+def save_capture() -> tuple[Response, int]:
+    image = str(payload().get("image") or "")
+    if not image.startswith(PNG_DATA_URL_PREFIX):
+        return jsonify({"error": "Image PNG en data URL requise"}), 400
+    try:
+        raw = base64.b64decode(image[len(PNG_DATA_URL_PREFIX):], validate=True)
+    except (binascii.Error, ValueError):
+        return jsonify({"error": "Encodage base64 invalide"}), 400
+    if not raw.startswith(PNG_MAGIC):
+        return jsonify({"error": "Le contenu n'est pas un PNG"}), 400
+
+    captures_dir = services()["settings"].captures_dir
+    try:
+        captures_dir.mkdir(parents=True, exist_ok=True)
+        stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        target = captures_dir / f"capture_{stamp}.png"
+        index = 1
+        while target.exists():
+            target = captures_dir / f"capture_{stamp}_{index}.png"
+            index += 1
+        target.write_bytes(raw)
+    except OSError as error:
+        return jsonify({"error": f"Écriture impossible : {error}"}), 500
+    return jsonify({"fichier": target.name}), 201
 
 
 @api_bp.get("/modeles")

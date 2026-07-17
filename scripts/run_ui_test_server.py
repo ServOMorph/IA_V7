@@ -95,6 +95,7 @@ def main() -> None:
         if candidate.exists():
             candidate.unlink()
     shutil.rmtree(data_dir / "exports", ignore_errors=True)
+    shutil.rmtree(data_dir / "captures", ignore_errors=True)
 
     settings = replace(
         Settings.from_env(),
@@ -102,6 +103,7 @@ def main() -> None:
         database_path=database_path,
         default_model_path=data_dir / "default_model.txt",
         export_dir=data_dir / "exports",
+        captures_dir=data_dir / "captures",
         host="127.0.0.1",
         port=4174,
     )

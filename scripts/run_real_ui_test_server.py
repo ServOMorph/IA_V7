@@ -27,6 +27,7 @@ def main() -> None:
         data_dir=data_dir,
         database_path=database_path,
         default_model_path=data_dir / "default_model.txt",
+        captures_dir=data_dir / "captures",
         default_model="gemma4:e4b",
         host="127.0.0.1",
         port=4175,

@@ -1,3 +1,16 @@
+## v1.2 — 2026-07-17
+
+### Ajouté
+- Commande `/rgpd <chemin_fichier | texte>` : anonymisation des PII par regex (emails, téléphones, NIR, IBAN, CB, IP, adresses postales, noms avec civilité) ; mode fichier écrit `<original>_anonymise.md`, mode texte affiche le résultat.
+- Capture d'écran depuis l'UI : bouton « Capture », overlay de sélection rectangulaire ajustable (déplacement + 8 poignées), enregistrement PNG horodaté dans `rapports_erreurs_manuels/` via `POST /api/ia/captures` (`IA_V7_CAPTURES_DIR`).
+- `html2canvas` vendorisé dans `static/vendor/`.
+- Fichier de démo PII fictives `tests-perso/doc_test_rgpd.txt`.
+- `/start` signale les fichiers en attente dans `rapports_erreurs_manuels/` sans les lire.
+
+### Modifié
+- `CommandContext` transporte le texte brut du message (préservation des sauts de ligne pour `/rgpd`).
+- `MAX_CONTENT_LENGTH` porté de 1 Mo à 10 Mo.
+
 ## v1.1 — 2026-07-17
 
 ### Modifié

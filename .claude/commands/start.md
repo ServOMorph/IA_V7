@@ -48,4 +48,9 @@ Lire `.claude/zones.md` pour obtenir la table des alias → dossiers réels.
 <!-- Convention : toute règle liée à une étape précise de la Procédure ci-dessus doit la
      référencer explicitement par son numéro (ex: "Étape 3 : ..."), plutôt que compter sur la
      position physique de cette zone (toujours en fin de fichier). -->
+
+Étape 4b : lister les fichiers présents dans `D:\ServOMorph\IA_V7\rapports_erreurs_manuels`
+(sans lire leur contenu). S'il y en a, ajouter à la synthèse une ligne :
+"⚠ N rapport(s) d'erreur manuel(s) en attente dans rapports_erreurs_manuels/ : <noms des fichiers>"
+pour que l'utilisateur puisse choisir de les traiter. Si le dossier est vide ou absent, ne rien afficher.
 <!-- SPECIFICITES PROJET : FIN -->

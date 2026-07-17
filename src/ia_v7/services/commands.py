@@ -23,6 +23,12 @@ class CommandContext:
     repository: IaRepository
     registry: "CommandRegistry"
     export_dir: Path
+    raw_text: str = ""
+
+    @property
+    def raw_payload(self) -> str:
+        stripped = self.raw_text.strip()
+        return re.sub(r"^/\S+[ \t]*", "", stripped, count=1).strip()
 
 
 CommandHandler = Callable[[CommandContext], CommandResult]
@@ -118,6 +124,88 @@ def _handle_write(context: CommandContext) -> CommandResult:
     return CommandResult(True, f"Fichier écrit : {target}")
 
 
+SENSITIVE_PLACEHOLDER = "[DONNÉE_SENSIBLE]"
+
+SENSITIVE_PATTERNS: list[re.Pattern[str]] = [
+    re.compile(r"[\w.+-]+@[\w-]+\.[\w.-]+"),
+    re.compile(r"\b[A-Z]{2}\d{2}(?:[ ]?[A-Z0-9]){11,30}\b"),
+    re.compile(r"\b[12]\s?\d{2}\s?(?:0[1-9]|1[0-2])\s?\d{2}\s?\d{3}\s?\d{3}(?:\s?\d{2})?\b"),
+    re.compile(r"\b(?:\d{4}[ -]?){3}\d{4}\b"),
+    re.compile(r"(?:\+33\s?|\b0)[1-9](?:[\s.-]?\d{2}){4}\b"),
+    re.compile(r"\b(?:\d{1,3}\.){3}\d{1,3}\b"),
+    re.compile(
+        r"\b\d{1,4}\s?(?:bis|ter)?,?\s+(?:rue|avenue|av\.|boulevard|bd|impasse|"
+        r"allée|allee|chemin|place|quai)\s+[^,\n.;]+",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        r"\b(?:M\.|Mr|Mme|Mlle|Dr|Me)\s+[A-ZÀ-Ý][\w'’-]+(?:\s+[A-ZÀ-Ý][\w'’-]+)?"
+    ),
+]
+
+
+def anonymize_text(text: str) -> tuple[str, int]:
+    total = 0
+    for pattern in SENSITIVE_PATTERNS:
+        text, count = pattern.subn(SENSITIVE_PLACEHOLDER, text)
+        total += count
+    return text, total
+
+
+_PATH_HINT = re.compile(r"^[^\s]+$")
+
+
+def _looks_like_path(payload: str) -> bool:
+    if not _PATH_HINT.fullmatch(payload):
+        return False
+    return "/" in payload or "\\" in payload or bool(re.search(r"\.\w{1,10}$", payload))
+
+
+def _handle_rgpd(context: CommandContext) -> CommandResult:
+    payload = context.raw_payload
+    if not payload:
+        return CommandResult(
+            False,
+            "Usage : /rgpd <chemin_fichier> ou /rgpd <texte à anonymiser>",
+        )
+
+    candidate = Path(_strip_quotes(payload))
+    single_token = "\n" not in payload and _PATH_HINT.fullmatch(_strip_quotes(payload))
+
+    if single_token and candidate.is_file():
+        try:
+            content = candidate.read_text(encoding="utf-8")
+        except UnicodeDecodeError:
+            return CommandResult(
+                False,
+                f"Format invalide : {candidate} n'est pas un fichier texte UTF-8",
+            )
+        except OSError as error:
+            return CommandResult(False, f"Lecture impossible : {candidate} ({error})")
+
+        anonymized, count = anonymize_text(content)
+        target = candidate.with_name(f"{candidate.stem}_anonymise.md")
+        if target.exists():
+            return CommandResult(False, f"Le fichier existe déjà : {target}")
+        try:
+            target.write_text(anonymized, encoding="utf-8")
+        except OSError as error:
+            return CommandResult(False, f"Écriture impossible : {target} ({error})")
+        return CommandResult(
+            True,
+            f"{count} donnée(s) sensible(s) remplacée(s).\nFichier anonymisé écrit : {target}",
+        )
+
+    if single_token and _looks_like_path(_strip_quotes(payload)):
+        return CommandResult(False, f"Fichier non trouvé : {_strip_quotes(payload)}")
+
+    anonymized, count = anonymize_text(payload)
+    return CommandResult(
+        True,
+        f"{count} donnée(s) sensible(s) remplacée(s).\n\n{anonymized}",
+    )
+
+
 class CommandService:
     def __init__(self, repository: IaRepository, export_dir: Path) -> None:
         self.repository = repository
@@ -129,6 +217,14 @@ class CommandService:
             "Enregistre le dernier livrable dans un fichier : /write <nom_fichier> [<path>]",
             _handle_write,
         )
+        self.registry.register(
+            "rgpd",
+            "Anonymise les PII (emails, téléphones, NIR, IBAN, CB, IP, adresses, "
+            "noms avec civilité) : /rgpd <chemin_fichier> ou /rgpd <texte>. "
+            "Depuis un fichier, écrit <original>_anonymise.md à côté. "
+            "Limite : les noms sans civilité ne sont pas détectés.",
+            _handle_rgpd,
+        )
 
     def execute(self, conversation_id: int, text: str) -> CommandResult:
         parsed = parse_command(text)
@@ -139,7 +235,7 @@ class CommandService:
         if command is None:
             return CommandResult(False, f"Commande inconnue : /{name}")
         context = CommandContext(
-            conversation_id, args, self.repository, self.registry, self.export_dir
+            conversation_id, args, self.repository, self.registry, self.export_dir, text
         )
         return command.handler(context)
 

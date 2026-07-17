@@ -4,7 +4,9 @@ Application autonome extraite du module IA de l’interface SérénIA Tech. Elle
 
 ## État actuel
 
-Système de commandes `/xxx` intercepté côté serveur, livré et testé (backend + UI). Commandes disponibles : `/help`, `/write <nom_fichier> [<path>]`.
+Système de commandes `/xxx` intercepté côté serveur, livré et testé (backend + UI). Commandes disponibles : `/help`, `/write <nom_fichier> [<path>]`, `/rgpd <chemin_fichier | texte>` (anonymisation des données sensibles par regex ; depuis un fichier, écrit `<original>_anonymise.md` à côté ; les noms sans civilité ne sont pas détectés).
+
+Capture d'écran intégrée à l'interface : bouton « Capture », sélection d'un rectangle ajustable, PNG horodaté enregistré dans `rapports_erreurs_manuels/` (`IA_V7_CAPTURES_DIR`).
 
 ## Prérequis
 
