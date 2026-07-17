@@ -8,6 +8,8 @@ Système de commandes `/xxx` intercepté côté serveur, livré et testé (backe
 
 Capture d'écran intégrée à l'interface : bouton « Capture », sélection d'un rectangle ajustable, PNG horodaté enregistré dans `rapports_erreurs_manuels/` (`IA_V7_CAPTURES_DIR`).
 
+La consigne système imposant au modèle de placer tout texte réutilisable dans un bloc ```livrable``` a été reformulée de façon plus impérative (respect non garanti, dépend du modèle Ollama utilisé).
+
 ## Prérequis
 
 - Windows 10 ou 11 ;

@@ -1,3 +1,8 @@
+## v1.3 — 2026-07-17
+
+### Modifié
+- Consigne système `DELIVERABLE_INSTRUCTION` reformulée de façon plus impérative (bloc ```livrable``` obligatoire pour tout texte réutilisable), suite à un manquement observé du modèle Ollama lors d'une reformulation.
+
 ## v1.2 — 2026-07-17
 
 ### Ajouté

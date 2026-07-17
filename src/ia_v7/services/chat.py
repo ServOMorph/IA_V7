@@ -8,10 +8,12 @@ from .context import FactExtractor, build_context
 
 
 DELIVERABLE_INSTRUCTION = (
-    "Quand l'utilisateur te demande de produire ou transformer un texte "
-    "destiné à être réutilisé (texte avec émojis, description, résumé, "
-    "traduction, reformulation, etc.), place uniquement ce texte final dans "
-    "un bloc ```livrable\\n...\\n```. Ne mets pas de commentaires à l'intérieur du bloc."
+    "Quand l'utilisateur te demande de produire, reformuler, traduire, résumer "
+    "ou transformer un texte destiné à être réutilisé ailleurs (texte avec émojis, "
+    "description, résumé, traduction, reformulation, message à copier-coller, etc.), "
+    "tu dois impérativement placer ce texte final dans un bloc ```livrable\\n...\\n```, "
+    "sans exception. N'écris jamais ce texte directement dans ta réponse en dehors de "
+    "ce bloc. Ne mets pas de commentaires à l'intérieur du bloc."
 )
 
 
