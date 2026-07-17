@@ -1,0 +1,279 @@
+{
+  "version": 1,
+  "description": "Corpus synthétique pour mesurer l'anonymisation déterministe de /rgpd.",
+  "thresholds": {
+    "minimum_exact_case_rate": 0.75,
+    "minimum_literal_recall": 0.8
+  },
+  "required_exact_cases": [
+    "facile_email",
+    "facile_telephone",
+    "facile_iban",
+    "facile_nir",
+    "facile_carte",
+    "facile_ip",
+    "moyen_adresse_complete",
+    "moyen_nom_civilite",
+    "moyen_nom_email",
+    "moyen_adresse_accentuee",
+    "difficile_telephone_compact",
+    "difficile_telephone_points",
+    "difficile_iban_espace",
+    "difficile_iban_doubles_espaces",
+    "difficile_email_plus",
+    "tres_difficile_csv",
+    "tres_difficile_fausse_ip",
+    "tres_difficile_faux_numero_carte",
+    "tres_difficile_plusieurs_pii",
+    "adversarial_email_homoglyphes",
+    "adversarial_iban_zero_width"
+  ],
+  "cases": [
+    {
+      "id": "facile_email",
+      "difficulty": "facile",
+      "title": "Adresse email standard",
+      "input": "Contact : alice.martin@example.com",
+      "expected_sensitive": [
+        {"category": "email", "value": "alice.martin@example.com"}
+      ]
+    },
+    {
+      "id": "facile_telephone",
+      "difficulty": "facile",
+      "title": "Téléphone français espacé",
+      "input": "Téléphone : 06 12 34 56 78",
+      "expected_sensitive": [
+        {"category": "telephone", "value": "06 12 34 56 78"}
+      ]
+    },
+    {
+      "id": "facile_iban",
+      "difficulty": "facile",
+      "title": "IBAN compact",
+      "input": "IBAN : FR7630006000011234567890189",
+      "expected_sensitive": [
+        {"category": "iban", "value": "FR7630006000011234567890189"}
+      ]
+    },
+    {
+      "id": "facile_nir",
+      "difficulty": "facile",
+      "title": "Numéro de sécurité sociale",
+      "input": "NIR : 1 85 07 75 108 121 45",
+      "expected_sensitive": [
+        {"category": "nir", "value": "1 85 07 75 108 121 45"}
+      ]
+    },
+    {
+      "id": "facile_carte",
+      "difficulty": "facile",
+      "title": "Numéro de carte bancaire",
+      "input": "Carte : 4539 1488 0343 6467",
+      "expected_sensitive": [
+        {"category": "carte", "value": "4539 1488 0343 6467"}
+      ]
+    },
+    {
+      "id": "facile_ip",
+      "difficulty": "facile",
+      "title": "Adresse IPv4",
+      "input": "Connexion : 192.168.1.42",
+      "expected_sensitive": [
+        {"category": "ip", "value": "192.168.1.42"}
+      ]
+    },
+    {
+      "id": "moyen_adresse_complete",
+      "difficulty": "moyen",
+      "title": "Adresse postale avec code postal et ville",
+      "input": "Livraison : 12 rue des Lilas, 75011 Paris",
+      "expected_sensitive": [
+        {"category": "adresse", "value": "12 rue des Lilas, 75011 Paris"}
+      ],
+      "recommendation": "Étendre le motif d'adresse au code postal et à la ville sans englober la phrase suivante."
+    },
+    {
+      "id": "moyen_nom_civilite",
+      "difficulty": "moyen",
+      "title": "Nom avec civilité",
+      "input": "Le dossier est suivi par Mme Sophie Martin",
+      "expected_sensitive": [
+        {"category": "nom", "value": "Mme Sophie Martin"}
+      ]
+    },
+    {
+      "id": "moyen_nom_email",
+      "difficulty": "moyen",
+      "title": "Nom et email dans la même phrase",
+      "input": "Dr Élodie Martin répond à elodie.martin@hopital.fr",
+      "expected_sensitive": [
+        {"category": "nom", "value": "Dr Élodie Martin"},
+        {"category": "email", "value": "elodie.martin@hopital.fr"}
+      ]
+    },
+    {
+      "id": "moyen_adresse_accentuee",
+      "difficulty": "moyen",
+      "title": "Adresse avec voie accentuée",
+      "input": "Domicile : 4 allée des Érables",
+      "expected_sensitive": [
+        {"category": "adresse", "value": "4 allée des Érables"}
+      ]
+    },
+    {
+      "id": "difficile_telephone_compact",
+      "difficulty": "difficile",
+      "title": "Téléphone compact",
+      "input": "Urgence : 0612345678",
+      "expected_sensitive": [
+        {"category": "telephone", "value": "0612345678"}
+      ]
+    },
+    {
+      "id": "difficile_telephone_points",
+      "difficulty": "difficile",
+      "title": "Téléphone séparé par des points",
+      "input": "Standard : 01.42.68.53.00",
+      "expected_sensitive": [
+        {"category": "telephone", "value": "01.42.68.53.00"}
+      ]
+    },
+    {
+      "id": "difficile_iban_espace",
+      "difficulty": "difficile",
+      "title": "IBAN espacé normalement",
+      "input": "Compte : FR76 3000 6000 0112 3456 7890 189",
+      "expected_sensitive": [
+        {"category": "iban", "value": "FR76 3000 6000 0112 3456 7890 189"}
+      ]
+    },
+    {
+      "id": "difficile_iban_doubles_espaces",
+      "difficulty": "difficile",
+      "title": "IBAN avec doubles espaces",
+      "input": "Compte : FR76  3000  6000  0112  3456  7890  189",
+      "expected_sensitive": [
+        {"category": "iban", "value": "FR76  3000  6000  0112  3456  7890  189"}
+      ],
+      "recommendation": "Normaliser les séparateurs internes des IBAN avant détection."
+    },
+    {
+      "id": "difficile_email_plus",
+      "difficulty": "difficile",
+      "title": "Email avec alias et sous-domaine",
+      "input": "Écrire à jean+factures@clients.example.fr",
+      "expected_sensitive": [
+        {"category": "email", "value": "jean+factures@clients.example.fr"}
+      ]
+    },
+    {
+      "id": "tres_difficile_nom_sans_civilite",
+      "difficulty": "très difficile",
+      "title": "Nom sans civilité",
+      "input": "Le contact principal est Jean Dupont",
+      "expected_sensitive": [
+        {"category": "nom", "value": "Jean Dupont"}
+      ],
+      "recommendation": "Ajouter une détection de noms contextualisée ; une regex générale créerait trop de faux positifs."
+    },
+    {
+      "id": "tres_difficile_pseudo",
+      "difficulty": "très difficile",
+      "title": "Pseudonyme de compte",
+      "input": "Compte public : @client_confidentiel",
+      "expected_sensitive": [
+        {"category": "pseudo", "value": "@client_confidentiel"}
+      ],
+      "recommendation": "Décider explicitement si les pseudonymes font partie du périmètre PII."
+    },
+    {
+      "id": "tres_difficile_csv",
+      "difficulty": "très difficile",
+      "title": "Plusieurs PII dans une ligne CSV",
+      "input": "Mme Alice Martin,alice@example.fr,06-12-34-56-78",
+      "expected_sensitive": [
+        {"category": "nom", "value": "Mme Alice Martin"},
+        {"category": "email", "value": "alice@example.fr"},
+        {"category": "telephone", "value": "06-12-34-56-78"}
+      ]
+    },
+    {
+      "id": "tres_difficile_fausse_ip",
+      "difficulty": "très difficile",
+      "title": "Version ressemblant à une IPv4",
+      "input": "Version de test : 999.999.999.999",
+      "expected_sensitive": [],
+      "recommendation": "Valider chaque octet IPv4 entre 0 et 255 pour réduire les faux positifs."
+    },
+    {
+      "id": "tres_difficile_faux_numero_carte",
+      "difficulty": "très difficile",
+      "title": "Référence à seize chiffres",
+      "input": "Référence colis : 1234 5678 9012 3456",
+      "expected_sensitive": [],
+      "recommendation": "Appliquer au minimum un contrôle de Luhn avant de classer une suite de 16 chiffres comme carte."
+    },
+    {
+      "id": "tres_difficile_plusieurs_pii",
+      "difficulty": "très difficile",
+      "title": "Trois PII dans une phrase",
+      "input": "Mme Sophie Martin utilise sophie@test.fr et le 07 98 76 54 32",
+      "expected_sensitive": [
+        {"category": "nom", "value": "Mme Sophie Martin"},
+        {"category": "email", "value": "sophie@test.fr"},
+        {"category": "telephone", "value": "07 98 76 54 32"}
+      ]
+    },
+    {
+      "id": "adversarial_email_mots",
+      "difficulty": "adversarial",
+      "title": "Email écrit en toutes lettres",
+      "input": "Contact : jean point dupont arobase exemple point fr",
+      "expected_sensitive": [
+        {"category": "email", "value": "jean point dupont arobase exemple point fr"}
+      ],
+      "recommendation": "Prévoir une normalisation optionnelle des formes « point » et « arobase », avec contrôle des faux positifs."
+    },
+    {
+      "id": "adversarial_email_homoglyphes",
+      "difficulty": "adversarial",
+      "title": "Email avec ponctuation pleine chasse",
+      "input": "Contact : alice＠example．fr",
+      "expected_sensitive": [
+        {"category": "email", "value": "alice＠example．fr"}
+      ],
+      "recommendation": "Normaliser Unicode en remplaçant les homoglyphes courants avant détection."
+    },
+    {
+      "id": "adversarial_email_fragmente",
+      "difficulty": "adversarial",
+      "title": "Email fragmenté sur plusieurs lignes",
+      "input": "Contact : alice\n@example\n.fr",
+      "expected_sensitive": [
+        {"category": "email", "value": "alice\n@example\n.fr"}
+      ],
+      "recommendation": "Définir si la recomposition interligne est acceptable avant d'ajouter ce cas à la détection."
+    },
+    {
+      "id": "adversarial_telephone_mots",
+      "difficulty": "adversarial",
+      "title": "Téléphone partiellement écrit en lettres",
+      "input": "Appelez zéro six 12 34 56 78",
+      "expected_sensitive": [
+        {"category": "telephone", "value": "zéro six 12 34 56 78"}
+      ],
+      "recommendation": "Une détection des nombres en lettres nécessite une normalisation linguistique dédiée."
+    },
+    {
+      "id": "adversarial_iban_zero_width",
+      "difficulty": "adversarial",
+      "title": "IBAN fragmenté par caractères invisibles",
+      "input": "Compte : FR76\u200b3000\u200b6000\u200b0112\u200b3456\u200b7890\u200b189",
+      "expected_sensitive": [
+        {"category": "iban", "value": "FR76\u200b3000\u200b6000\u200b0112\u200b3456\u200b7890\u200b189"}
+      ],
+      "recommendation": "Supprimer les caractères Unicode invisibles avant d'analyser les identifiants structurés."
+    }
+  ]
+}

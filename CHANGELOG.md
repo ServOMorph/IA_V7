@@ -1,3 +1,12 @@
+## v1.5 — 2026-07-17
+
+### Ajouté
+- Benchmark automatisé `/rgpd` : corpus synthétique, rapport Markdown, résultats par catégorie et seuils de non-régression.
+
+### Corrigé
+- Anonymisation renforcée : IBAN à séparateurs atypiques validés MOD-97, IPv4 valides, cartes validées Luhn, adresses avec code postal/ville et emails à ponctuation Unicode.
+- Couverture de test étendue au benchmark et au document de démonstration complet ; 56 tests pytest réussis.
+
 ## v1.4 — 2026-07-17
 
 ### Modifié

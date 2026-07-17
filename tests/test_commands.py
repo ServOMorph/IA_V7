@@ -1,6 +1,13 @@
 from __future__ import annotations
 
-from ia_v7.services.commands import CommandService, is_command, parse_command
+from pathlib import Path
+
+from ia_v7.services.commands import (
+    CommandService,
+    anonymize_text,
+    is_command,
+    parse_command,
+)
 
 
 def create_conversation(client, **data):
@@ -230,3 +237,80 @@ def test_rgpd_missing_args(app):
     result = service.execute(1, "/rgpd")
     assert not result.success
     assert "Usage" in result.message
+
+
+def test_rgpd_iban_accepts_atypical_separators():
+    double_spaces = "FR76  3000  6000  0112  3456  7890  189"
+    zero_width = "FR76\u200b3000\u200b6000\u200b0112\u200b3456\u200b7890\u200b189"
+
+    for iban in (double_spaces, zero_width):
+        anonymized, count = anonymize_text(f"Compte : {iban}")
+        assert count == 1
+        assert iban not in anonymized
+
+
+def test_rgpd_iban_rejects_invalid_checksum():
+    invalid = "FR76 3000 6000 0112 3456 7890 180"
+    anonymized, count = anonymize_text(f"Compte : {invalid}")
+
+    assert count == 0
+    assert invalid in anonymized
+
+
+def test_rgpd_ipv4_validates_octets():
+    anonymized, count = anonymize_text("IP 192.168.1.42, version 999.999.999.999")
+
+    assert count == 1
+    assert "192.168.1.42" not in anonymized
+    assert "999.999.999.999" in anonymized
+
+
+def test_rgpd_card_requires_valid_luhn_checksum():
+    anonymized, count = anonymize_text(
+        "Carte 4539 1488 0343 6467, colis 1234 5678 9012 3456"
+    )
+
+    assert count == 1
+    assert "4539 1488 0343 6467" not in anonymized
+    assert "1234 5678 9012 3456" in anonymized
+
+
+def test_rgpd_address_includes_postcode_and_city():
+    address = "12 rue des Lilas, 75011 Paris"
+    anonymized, count = anonymize_text(f"Livraison : {address}")
+
+    assert count == 1
+    assert address not in anonymized
+    assert "75011 Paris" not in anonymized
+
+
+def test_rgpd_email_accepts_fullwidth_punctuation():
+    email = "alice＠example．fr"
+    anonymized, count = anonymize_text(f"Contact : {email}")
+
+    assert count == 1
+    assert email not in anonymized
+
+
+def test_rgpd_anonymizes_complete_demo_document():
+    source = Path(__file__).resolve().parents[1] / "tests-perso" / "doc_test_rgpd.txt"
+    content = source.read_text(encoding="utf-8")
+    anonymized, count = anonymize_text(content)
+
+    assert count == 12
+    assert anonymized.count("[DONNÉE_SENSIBLE]") == 12
+    for sensitive_value in (
+        "M. Jean Dupont",
+        "jean.dupont@example.com",
+        "06 12 34 56 78",
+        "12 rue des Lilas, 75011 Paris",
+        "Mme Sophie Martin",
+        "sophie.martin@societe.fr",
+        "FR76 3000 6000 0112 3456 7890 189",
+        "4539 1488 0343 6467",
+        "1 85 07 75 108 121 45",
+        "192.168.1.42",
+        "Dr Bernard",
+        "07 98 76 54 32",
+    ):
+        assert sensitive_value not in anonymized

@@ -4,7 +4,9 @@ Application autonome extraite du module IA de l’interface SérénIA Tech. Elle
 
 ## État actuel
 
-Système de commandes `/xxx` intercepté côté serveur, livré et testé (backend + UI). Commandes disponibles : `/help`, `/write <nom_fichier> [<path>]`, `/rgpd <chemin_fichier | texte>` (anonymisation des données sensibles par regex ; depuis un fichier, écrit `<original>_anonymise.md` à côté ; les noms sans civilité ne sont pas détectés).
+Système de commandes `/xxx` intercepté côté serveur, livré et testé (backend + UI). Commandes disponibles : `/help`, `/write <nom_fichier> [<path>]`, `/rgpd <chemin_fichier | texte>` (anonymisation des données sensibles par règles déterministes ; depuis un fichier, écrit `<original>_anonymise.md` à côté).
+
+Le benchmark `/rgpd` couvre 26 cas synthétiques et atteint 21 cas exactement conformes ; il verrouille 21 cas obligatoires de non-régression. Les IBAN à séparateurs atypiques, IPv4 valides, cartes validées par Luhn, adresses avec code postal/ville et emails à ponctuation Unicode sont pris en charge. Les noms sans civilité, pseudonymes et formats obfusqués ou fragmentés restent hors périmètre.
 
 Capture d'écran intégrée à l'interface : bouton « Capture », sélection d'un rectangle ajustable, PNG horodaté enregistré dans `rapports_erreurs_manuels/` (`IA_V7_CAPTURES_DIR`).
 
@@ -51,6 +53,7 @@ La configuration peut être adaptée avec un fichier `.env` basé sur `.env.exam
 ```powershell
 python -m pip install -r requirements-dev.txt
 python -m pytest -q
+python scripts/benchmark_rgpd.py
 npm ci
 npm run test:ui
 npm run test:ui:real
