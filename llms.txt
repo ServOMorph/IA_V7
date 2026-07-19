@@ -1,0 +1,39 @@
+# IA V7
+
+> Application autonome de chat IA et d'anonymisation RGPD extraite du module IA de l'interface SérénIA Tech. Elle pilote l'instance Ollama locale, gère les dossiers et les conversations de chat, conserve l'historique dans une base de données SQLite dédiée et diffuse les réponses en streaming (Server-Sent Events). Intègre un système de commandes `/xxx` serveur (aide, export de livrables, anonymisation RGPD déterministe) et un module de capture d'écran d'erreur depuis l'UI.
+
+## Stack
+- **Backend** : Python >=3.11, Flask >=3.0, `python-dotenv` pour la configuration, `requests`.
+- **Base de données** : SQLite (`data/ia.db` en local, exclu de Git).
+- **Intégration LLM** : Requêtes directes à l'API d'Ollama locale (`http://localhost:11434`).
+- **Frontend** : HTML5, CSS vanilla, JavaScript (SSE, markdown-it, html2canvas pour la capture d'écran).
+- **Tests & Benchmark** : Pytest, Playwright (E2E sous Microsoft Edge), Node.js (pour lancer les tests E2E Playwright).
+
+## Points d'entrée
+- `run.py` — Point d'entrée de lancement principal de l'application Flask locale.
+- `src/ia_v7/app.py` — Initialisation et configuration de l'application Flask.
+- `src/ia_v7/web/routes.py` — Définition des routes HTTP de l'application et streaming SSE.
+- `src/ia_v7/services/commands.py` — Logique d'interception et de traitement des commandes `/xxx` côté serveur.
+- `src/ia_v7/services/context.py` — Calcul de budget de tokens et assemblage des messages système/utilisateur.
+- `scripts/benchmark_rgpd.py` — Script exécutant le corpus de tests d'anonymisation RGPD (26 cas de test).
+
+## Architecture & Fonctionnalités clés
+1. **Système de commandes serveur (`/xxx`)** :
+   - `/help` : Affiche l'aide et les commandes disponibles.
+   - `/write <nom_fichier> [<path>]` : Exporte le dernier bloc de code ```livrable``` de la conversation vers un fichier local.
+   - `/rgpd <chemin_fichier | texte>` : Anonymise les PII (Données Personnelles) par regex déterministes (IBAN MOD-97, cartes de crédit Luhn, IPv4, adresses, emails Unicode, NIR, téléphones, noms avec civilité). Écrit un fichier `<original>_anonymise.md` à côté en mode fichier.
+2. **Module de Capture d'écran** :
+   - Depuis l'interface web, un bouton « Capture » active un calque de sélection rectangulaire réglable.
+   - La zone sélectionnée est capturée via `html2canvas` et transmise à l'API (`POST /api/ia/captures`) pour être enregistrée en PNG horodaté dans `rapports_erreurs_manuels/`.
+3. **Gestion des contextes** :
+   - Historique complet persisté dans SQLite.
+   - Ajustement dynamique du budget de tokens selon la limite du modèle utilisé pour éviter les dépassements de contexte Ollama.
+
+## État (v1.7, 2026-07-17)
+Système de commandes serveur opérationnel et validé. Benchmark RGPD couvrant 26 cas de test (21 conformités strictes verrouillant les non-régressions). Interface de capture d'écran fonctionnelle. Renommage des dossiers et conversations par double-clic fonctionnel.
+
+## Liens
+- Dépôt : https://github.com/ServOMorph/IA_V7
+- Protocole de test manuel : `TESTS_MANUELS.md`
+- Historique des versions : `CHANGELOG.md`
+- Licence : MIT (voir `LICENSE`)
