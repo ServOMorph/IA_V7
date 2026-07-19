@@ -11,7 +11,7 @@ DELIVERABLE_INSTRUCTION = (
     "Quand l'utilisateur te demande de produire, reformuler, traduire, résumer "
     "ou transformer un texte destiné à être réutilisé ailleurs (texte avec émojis, "
     "description, résumé, traduction, reformulation, message à copier-coller, etc.), "
-    "tu dois impérativement placer ce texte final dans un bloc ```livrable\\n...\\n```, "
+    "tu dois impérativement placer ce texte final dans un bloc ```livrable\n...\n```, "
     "sans exception. N'écris jamais ce texte directement dans ta réponse en dehors de "
     "ce bloc. Ne mets pas de commentaires à l'intérieur du bloc."
 )
@@ -94,4 +94,3 @@ class ChatService:
             raise RuntimeError("Titre vide")
         self.repository.update_conversation(conversation_id, {"titre": title})
         return title
-

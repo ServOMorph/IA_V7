@@ -109,16 +109,18 @@ test('parcours UI complet sur ordinateur', async ({ page, context }, testInfo) =
   await expect(page.locator('#ia-btn-envoyer')).toBeVisible();
   await expect(page.locator('#ia-input')).toBeEnabled();
 
-  await page.locator('#ia-input').fill('/hel');
-  await expect(page.locator('.ia-suggestion')).toHaveCount(1);
-  await expect(page.locator('.ia-suggestion strong')).toHaveText('/help');
-  await page.locator('.ia-suggestion').click();
-  await expect(page.locator('#ia-input')).toHaveValue('/help ');
-  await page.locator('#ia-btn-envoyer').click();
-  const helpBubble = page.locator('.ia-bulle-assistant').last();
-  await expect(helpBubble).toContainText('/help');
-  await expect(helpBubble).toContainText('/write');
-  await expect(helpBubble).toHaveClass(/ia-bulle-commande/);
+  await page.locator('#ia-input').fill('/help');
+  const assistantCountBeforeHelp = await page.locator('.ia-bulle-assistant').count();
+  const userCountBeforeHelp = await page.locator('.ia-bulle-user').count();
+  await expect(page.locator('#ia-modal-help')).toBeVisible();
+  await expect(page.locator('#ia-modal-help-titre')).toHaveText('Commandes disponibles');
+  await expect(page.locator('#ia-help-commandes')).toContainText('/help');
+  await expect(page.locator('#ia-help-commandes')).toContainText('/write');
+  await expect(page.locator('.ia-bulle-assistant')).toHaveCount(assistantCountBeforeHelp);
+  await expect(page.locator('.ia-bulle-user')).toHaveCount(userCountBeforeHelp);
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#ia-modal-help')).toBeHidden();
+  await expect(page.locator('#ia-input')).toHaveValue('');
 
   await page.locator('#ia-input').fill('/write test_ui_write');
   await page.locator('#ia-btn-envoyer').click();
@@ -179,7 +181,7 @@ test('parcours UI complet sur ordinateur', async ({ page, context }, testInfo) =
   await folder.locator('.ia-dossier-toggle').click();
   conversation = folder.locator('.ia-conv').filter({ hasText: 'Conversation UI automatisée' });
   await conversation.locator('.ia-conv-nom').click();
-  await expect(page.locator('.ia-bulle-user')).toHaveCount(9);
+  await expect(page.locator('.ia-bulle-user')).toHaveCount(8);
   expect(await page.locator('.ia-bulle-assistant').count()).toBeGreaterThanOrEqual(3);
 
   await page.locator('#ia-ephemere').check();

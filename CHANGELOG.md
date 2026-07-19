@@ -1,3 +1,12 @@
+## v2.0 — 2026-07-19
+
+### Corrigé
+- `DELIVERABLE_INSTRUCTION` utilise des retours à la ligne Markdown réels, permettant au rendu UI d'identifier un bloc `livrable`.
+- `/help` ne peut plus devenir la dernière réponse assistant exportée par `/write` : il est affiché dans une modale locale sans persistance.
+
+### Modifié
+- Contexte de projet actualisé ; décision initiale archivée dans `_contexte/archive_decisions.md` pour conserver dix décisions actives.
+
 ## v1.7 — 2026-07-17
 
 ### Corrigé

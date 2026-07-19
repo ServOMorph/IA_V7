@@ -138,6 +138,16 @@ button, select, textarea, input { font: inherit; }
 .ia-suggestion span { color: var(--color-text-muted); }
 .ia-suggestion:hover, .ia-suggestion.ia-suggestion-active { background: var(--color-bg-dark); }
 
+.ia-modal { position: fixed; inset: 0; z-index: 120; display: grid; place-items: center; padding: var(--space-md); background: rgba(0, 0, 0, 0.45); }
+.ia-modal[hidden] { display: none; }
+.ia-modal-contenu { width: min(560px, 100%); max-height: min(560px, calc(100vh - 2 * var(--space-md))); overflow: auto; padding: var(--space-lg); border: 1px solid var(--color-bg-dark); border-radius: var(--radius-lg); background: var(--color-bg); box-shadow: var(--shadow-md); }
+.ia-modal-entete { display: flex; align-items: center; justify-content: space-between; gap: var(--space-md); margin-bottom: var(--space-md); }
+.ia-modal-entete h2 { font: 600 1.1rem var(--font-display); }
+.ia-help-commandes { display: grid; gap: var(--space-sm); }
+.ia-help-commande { padding: var(--space-sm); border: 1px solid var(--color-bg-dark); border-radius: var(--radius-sm); }
+.ia-help-commande strong { display: block; color: var(--color-primary-dark); }
+.ia-help-commande span { font-size: 0.85rem; color: var(--color-text-muted); }
+
 #ia-capture-overlay { position: fixed; inset: 0; z-index: 100; cursor: crosshair; background: rgba(0, 0, 0, 0.25); }
 .ia-capture-aide { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); background: var(--color-bg); color: var(--color-text); padding: 6px 14px; border-radius: var(--radius-md); font-size: 0.85rem; pointer-events: none; }
 #ia-capture-rect { position: absolute; border: 2px solid var(--color-primary); background: rgba(255, 255, 255, 0.12); box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.35); cursor: move; }

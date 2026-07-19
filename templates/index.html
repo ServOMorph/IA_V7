@@ -56,6 +56,15 @@
             </section>
         </div>
     </main>
+    <div id="ia-modal-help" class="ia-modal" role="dialog" aria-modal="true" aria-labelledby="ia-modal-help-titre" hidden>
+        <div class="ia-modal-contenu">
+            <div class="ia-modal-entete">
+                <h2 id="ia-modal-help-titre">Commandes disponibles</h2>
+                <button id="ia-btn-fermer-help" class="ia-btn-ghost" aria-label="Fermer l'aide">Fermer</button>
+            </div>
+            <div id="ia-help-commandes" class="ia-help-commandes"></div>
+        </div>
+    </div>
     <noscript>JavaScript doit être activé pour utiliser IA V7.</noscript>
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
     <script>

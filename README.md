@@ -4,15 +4,15 @@ Application autonome extraite du module IA de l’interface SérénIA Tech. Elle
 
 ## État actuel
 
-Système de commandes `/xxx` intercepté côté serveur, livré et testé (backend + UI). Commandes disponibles : `/help`, `/write <nom_fichier> [<path>]`, `/rgpd <chemin_fichier | texte>` (anonymisation des données sensibles par règles déterministes ; depuis un fichier, écrit `<original>_anonymise.md` à côté).
+Commandes disponibles : `/help`, `/write <nom_fichier> [<path>]`, `/rgpd <chemin_fichier | texte>`. `/help` ouvre une modale locale, sans créer de message ni de conversation ; Entrée ferme l'aide et efface la saisie.
 
 Le benchmark `/rgpd` couvre 26 cas synthétiques et atteint 21 cas exactement conformes ; il verrouille 21 cas obligatoires de non-régression. Les IBAN à séparateurs atypiques, IPv4 valides, cartes validées par Luhn, adresses avec code postal/ville et emails à ponctuation Unicode sont pris en charge. Les noms sans civilité, pseudonymes et formats obfusqués ou fragmentés restent hors périmètre.
 
-Capture d'écran intégrée à l'interface : bouton « Capture », sélection d'un rectangle ajustable, PNG horodaté enregistré dans `rapports_erreurs_manuels/` (`IA_V7_CAPTURES_DIR`).
+Capture d'écran intégrée à l'interface : bouton « Capture », sélection d'un rectangle ajustable, PNG horodaté enregistré dans `rapports_erreurs_manuels/` (`IA_V7_CAPTURES_DIR`). Les dossiers et conversations se renomment par double-clic ; le clic simple sur un dossier replie ou déplie son contenu.
 
-La consigne système imposant au modèle de placer tout texte réutilisable dans un bloc ```livrable``` a été reformulée de façon plus impérative (respect non garanti, dépend du modèle Ollama utilisé).
+La consigne système impose un bloc ```livrable``` avec de vrais retours à la ligne Markdown pour les textes réutilisables. Son respect reste dépendant du modèle Ollama utilisé.
 
-Les dossiers et conversations se renomment par double-clic dans l’arborescence.
+Tests verts : 58 pytest ; Playwright desktop et mobile.
 
 ## Prérequis
 

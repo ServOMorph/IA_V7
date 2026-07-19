@@ -173,6 +173,22 @@ async function iaChargerCommandes() {
     iaCommandes = (ok && Array.isArray(data)) ? data : [];
 }
 
+function iaOuvrirAide() {
+    const modal = document.getElementById('ia-modal-help');
+    const liste = document.getElementById('ia-help-commandes');
+    liste.innerHTML = iaCommandes.map(command =>
+        `<div class="ia-help-commande"><strong>/${iaEsc(command.nom)}</strong>` +
+        `<span>${iaEsc(command.description)}</span></div>`
+    ).join('');
+    modal.hidden = false;
+    document.getElementById('ia-btn-fermer-help').focus();
+}
+
+function iaFermerAide() {
+    document.getElementById('ia-modal-help').hidden = true;
+    document.getElementById('ia-input').focus();
+}
+
 function iaMasquerSuggestions() {
     const boite = document.getElementById('ia-suggestions');
     boite.style.display = 'none';
@@ -203,14 +219,24 @@ function iaAfficherSuggestions(filtre) {
 
 function iaChoisirSuggestion(nom) {
     const input = document.getElementById('ia-input');
-    input.value = '/' + nom + ' ';
+    input.value = '/' + nom;
     iaMasquerSuggestions();
+    if (nom === 'help') {
+        iaOuvrirAide();
+        return;
+    }
+    input.value += ' ';
     input.focus();
 }
 
 function iaGererSaisieCommande() {
     const input = document.getElementById('ia-input');
     const valeur = input.value;
+    if (valeur.trim().toLowerCase() === '/help') {
+        iaMasquerSuggestions();
+        iaOuvrirAide();
+        return;
+    }
     const match = /^\/(\w*)$/.exec(valeur);
     if (match) {
         iaAfficherSuggestions(match[1].toLowerCase());
@@ -527,6 +553,11 @@ async function iaEnvoyer() {
     const texte = input.value.trim();
     if (!texte) return;
     iaMasquerSuggestions();
+
+    if (texte.toLowerCase() === '/help') {
+        iaOuvrirAide();
+        return;
+    }
 
     if (!iaConvCourante) {
         await iaNouvelleConversation();
@@ -848,6 +879,22 @@ function iaBrancherUI() {
     document.getElementById('ia-btn-decharger').onclick = iaDechargerModeleCourant;
     document.getElementById('ia-btn-defaut').onclick = iaDefinirModelDefault;
     document.getElementById('ia-btn-capture').onclick = iaCaptureDemarrer;
+    document.getElementById('ia-btn-fermer-help').onclick = iaFermerAide;
+    document.getElementById('ia-modal-help').onclick = (e) => {
+        if (e.target.id === 'ia-modal-help') iaFermerAide();
+    };
+    document.addEventListener('keydown', (e) => {
+        const modalAide = document.getElementById('ia-modal-help');
+        if (e.key === 'Enter' && !modalAide.hidden) {
+            e.preventDefault();
+            const input = document.getElementById('ia-input');
+            input.value = '';
+            input.style.height = 'auto';
+            iaFermerAide();
+        } else if (e.key === 'Escape' && !modalAide.hidden) {
+            iaFermerAide();
+        }
+    });
 
     const input = document.getElementById('ia-input');
     input.onkeydown = (e) => {
