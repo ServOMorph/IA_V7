@@ -17,3 +17,7 @@ playwright-report/
 playwright-report-real/
 test-results/
 .tmp_ui_data/
+
+# Fichiers de test et captures temporaires contenant des donnees sensibles (PII)
+rapports_erreurs_manuels/*.png
+tests-perso/*_anonymise.md
