@@ -1,4 +1,4 @@
-# IA V7
+# IA V7 — Application autonome de chat IA et d'anonymisation RGPD avec Ollama
 
 Application autonome extraite du module IA de l’interface SérénIA Tech. Elle pilote Ollama local, gère les dossiers et conversations, conserve l’historique dans une base SQLite dédiée et diffuse les réponses en streaming.
 
@@ -101,3 +101,9 @@ Les dépendances externes sont injectables. Les routes ne dépendent ni du monol
 ## Point de vigilance
 
 Le bouton `Arrêter serveur` conserve le comportement historique : sous Windows, il arrête le processus `ollama.exe`. Cela affecte les autres applications locales qui utilisent la même instance Ollama.
+
+## Licence
+
+Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de détails.
+
+Copyright (c) 2026 ServOMorph
