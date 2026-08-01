@@ -9,9 +9,9 @@ Python 3.11+, SQLite, Node.js 20+ et Playwright pour les tests UI, Ollama local
 ## État actuel (réécrit intégralement à chaque /close)
 Commandes disponibles : `/help`, `/write`, `/rgpd` ; `/help` est une modale locale sans persistance dans la conversation.
 L'anonymisation PII fonctionne en mode fichier ou texte ; le benchmark repose sur 26 cas synthétiques, dont 21 cas obligatoires verrouillés.
-Les dossiers et conversations se renomment par double-clic ; le pliage/dépliage au clic simple a été validé manuellement.
-`DELIVERABLE_INSTRUCTION` emploie de vrais retours à la ligne Markdown ; le respect du bloc reste à confirmer sur des échanges Ollama réels.
-Tests verts : 58 pytest ; Playwright desktop et mobile. En attente : test manuel `/rgpd` et décisions sur les cas RGPD ambigus.
+`DELIVERABLE_INSTRUCTION` ne déclenche plus le bloc ```livrable``` que sur demande explicite ; à confirmer sur des échanges Ollama réels.
+Modèle par défaut : `gemma4:12b`.
+Tests verts : test_chat.py confirmé cette session ; suite complète (58 pytest, Playwright) non relancée. En attente : test manuel `/rgpd`, confirmation en usage réel de la restriction livrable, décisions sur les cas RGPD ambigus.
 
 ## Décisions structurantes (append only — 10 entrées max, archiver au-delà)
 - 2026-07-17 : Ajout du système de commandes `/xxx` (parseur, registre, `/help`, `/write`) intercepté avant Ollama.
@@ -24,3 +24,5 @@ Tests verts : 58 pytest ; Playwright desktop et mobile. En attente : test manuel
 - 2026-07-17 : Le rapport manuel sur le renommage est clos : cette fonctionnalité était déjà implémentée et testée.
 - 2026-07-17 : Correction d'une régression du pliage/dépliage des dossiers introduite par l'ajout du renommage par double-clic (`.ia-dossier-nom` n'avait pas d'`onclick`).
 - 2026-07-19 : La consigne `livrable` utilise des retours à la ligne réels et `/help` est une modale locale non persistée.
+- 2026-08-01 : `DELIVERABLE_INSTRUCTION` restreinte au déclenchement sur demande explicite (au lieu de toute reformulation/traduction/résumé).
+- 2026-08-01 : Modèle par défaut changé pour `gemma4:12b`.

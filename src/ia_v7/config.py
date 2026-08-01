@@ -42,7 +42,7 @@ class Settings:
                 os.getenv("IA_V7_CAPTURES_DIR", PROJECT_ROOT / "rapports_erreurs_manuels")
             ).resolve(),
             ollama_url=os.getenv("OLLAMA_URL", "http://127.0.0.1:11434").rstrip("/"),
-            default_model=os.getenv("IA_V7_DEFAULT_MODEL", "gemma4:e4b"),
+            default_model=os.getenv("IA_V7_DEFAULT_MODEL", "gemma4:12b"),
             num_ctx=int(os.getenv("IA_V7_NUM_CTX", "16384")),
             host=os.getenv("IA_V7_HOST", "127.0.0.1"),
             port=int(os.getenv("IA_V7_PORT", "4023")),

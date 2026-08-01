@@ -10,7 +10,9 @@ Le benchmark `/rgpd` couvre 26 cas synthétiques et atteint 21 cas exactement co
 
 Capture d'écran intégrée à l'interface : bouton « Capture », sélection d'un rectangle ajustable, PNG horodaté enregistré dans `rapports_erreurs_manuels/` (`IA_V7_CAPTURES_DIR`). Les dossiers et conversations se renomment par double-clic ; le clic simple sur un dossier replie ou déplie son contenu.
 
-La consigne système impose un bloc ```livrable``` avec de vrais retours à la ligne Markdown pour les textes réutilisables. Son respect reste dépendant du modèle Ollama utilisé.
+La consigne système impose un bloc ```livrable``` avec de vrais retours à la ligne Markdown uniquement sur demande explicite de livrable ou de texte à copier-coller ; les réponses de conversation normale (reformulation, traduction, résumé sans demande explicite) restent en texte libre. Son respect reste dépendant du modèle Ollama utilisé.
+
+Modèle par défaut : `gemma4:12b`.
 
 Tests verts : 58 pytest ; Playwright desktop et mobile.
 

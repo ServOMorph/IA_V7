@@ -1,3 +1,11 @@
+## v2.1 — 2026-08-01
+
+### Corrigé
+- `DELIVERABLE_INSTRUCTION` déclenchait le bloc ```livrable``` sur toute reformulation/traduction/résumé, même en conversation normale ; restreinte à une demande explicite de livrable ou de texte à copier-coller.
+
+### Modifié
+- Modèle par défaut changé pour `gemma4:12b` (`config.py`, `data/default_model.txt`, `.tmp_ui_data/default_model.txt`).
+
 ## v2.0 — 2026-07-19
 
 ### Corrigé
