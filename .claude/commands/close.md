@@ -108,23 +108,26 @@ Lire `.claude/zones.md` pour obtenir la table des alias → dossiers réels.
       survenir avec l'étape 9, mais à vérifier via `git status` après coup) : les inclure dans
       ce même commit, jamais dans un commit séparé.
 
-11. Afficher un bilan des résidus non commités :
+11. Exécuter `git push` :
+    ```bash
+    git push
+    ```
+    Si le projet n'a pas de remote configuré, ignorer cette étape silencieusement. Si le push
+    échoue (pas de remote tracking, conflit, réseau, etc.) : afficher l'erreur telle quelle dans
+    le bilan de l'étape 12, ne pas tenter de résolution automatique (pas de force push, pas de
+    pull/rebase automatique).
+
+12. Afficher un bilan des résidus non commités :
     ```bash
     git status --short
     ```
     S'il reste des fichiers non commités : ajouter à la synthèse finale une ligne
     "résidus non commités : N fichiers". Pas d'action automatique — uniquement rendre visible.
 
-12. Afficher en fin de réponse en grand format : ✌️😎
+13. Afficher en fin de réponse en grand format : ✌️😎
 
 <!-- SPECIFICITES PROJET : DEBUT (préservé par /update, ne pas toucher hors de ce bloc) -->
 <!-- Convention : toute règle liée à une étape précise de la Procédure ci-dessus doit la
      référencer explicitement par son numéro (ex: "Étape 6 : ..."), plutôt que compter sur la
      position physique de cette zone (toujours en fin de fichier). -->
-
-Après le commit git de cette procédure (étape "Effectuer un commit git"), exécuter `git push`.
-Si le projet n'a pas de remote configuré, ignorer cette étape silencieusement. Si le push échoue
-(pas de remote tracking, conflit, réseau, etc.) : afficher l'erreur telle quelle dans le bilan des
-résidus non commités, ne pas tenter de résolution automatique (pas de force push, pas de
-pull/rebase automatique). Propagé depuis `claude-vibecoding-kit` le 2026-08-04.
 <!-- SPECIFICITES PROJET : FIN -->
