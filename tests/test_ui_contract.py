@@ -7,11 +7,13 @@ ROOT = Path(__file__).resolve().parents[1]
 def test_required_dom_ids_and_scripts_are_present():
     html = (ROOT / "templates" / "index.html").read_text(encoding="utf-8")
     required_ids = {
-        "panel-ia", "ia-btn-nouvelle-conv", "ia-btn-nouveau-dossier", "ia-ephemere",
+        "panel-ia", "ia-mode-chat", "ia-mode-code", "ia-mode-actif",
+        "ia-btn-nouvelle-conv", "ia-btn-nouveau-dossier", "ia-ephemere",
         "ia-arbo", "ia-select-modele", "ia-statut-serveur", "ia-modele-charge",
         "ia-btn-serveur", "ia-btn-charger", "ia-btn-decharger", "ia-btn-defaut",
         "ia-titre-conv", "ia-messages", "ia-input", "ia-btn-envoyer", "ia-btn-stop",
-        "ia-modal-help", "ia-btn-fermer-help", "ia-help-commandes",
+        "ia-modal-help", "ia-btn-fermer-help", "ia-help-commandes", "ia-modal-dossier",
+        "ia-form-dossier", "ia-dossier-nom", "ia-dossier-chemin",
     }
     for element_id in required_ids:
         assert f'id="{element_id}"' in html
@@ -25,6 +27,15 @@ def test_help_is_intercepted_by_the_interface():
     assert "function iaOuvrirAide()" in javascript
     assert "texte.toLowerCase() === '/help'" in javascript
     assert "iaOuvrirAide();" in javascript
+
+
+def test_code_mode_is_isolated_and_uses_work_folders():
+    javascript = (ROOT / "static" / "js" / "app.js").read_text(encoding="utf-8")
+    css = (ROOT / "static" / "css" / "styles.css").read_text(encoding="utf-8")
+    assert "let iaModeActuel = 'chat';" in javascript
+    assert "'/api/ia/dossiers?mode=' + iaModeActuel" in javascript
+    assert "function iaChangerMode(mode)" in javascript
+    assert "body.ia-mode-code" in css
 
 
 def test_serenia_visual_tokens_are_preserved():

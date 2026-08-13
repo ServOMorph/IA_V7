@@ -4,6 +4,8 @@ Application autonome extraite du module IA de l’interface SérénIA Tech. Elle
 
 ## État actuel
 
+Les modes Chat et Code sont accessibles dans le header. Le mode Code garde l’écran d’agent et les fonctionnalités existantes, mais utilise une identité violette et isole ses dossiers de travail du mode Chat. La création d’un dossier Code exige un chemin absolu vers un dossier existant ; ce chemin est conservé avec le dossier.
+
 Commandes disponibles : `/help`, `/write <nom_fichier> [<path>]`, `/rgpd <chemin_fichier | texte>`. `/help` ouvre une modale locale, sans créer de message ni de conversation ; Entrée ferme l'aide et efface la saisie.
 
 Le benchmark `/rgpd` couvre 26 cas synthétiques et atteint 21 cas exactement conformes ; il verrouille 21 cas obligatoires de non-régression. Les IBAN à séparateurs atypiques, IPv4 valides, cartes validées par Luhn, adresses avec code postal/ville et emails à ponctuation Unicode sont pris en charge. Les noms sans civilité, pseudonymes et formats obfusqués ou fragmentés restent hors périmètre.
@@ -14,7 +16,7 @@ La consigne système impose un bloc ```livrable``` avec de vrais retours à la l
 
 Modèle par défaut : `gemma4:12b`.
 
-Tests verts : 58 pytest ; Playwright desktop et mobile.
+Tests verts : 63 pytest ; Playwright desktop et mobile.
 
 ## Prérequis
 

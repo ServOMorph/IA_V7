@@ -11,6 +11,8 @@ CREATE TABLE IF NOT EXISTS ia_dossiers (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     nom TEXT NOT NULL,
     system_prompt TEXT NOT NULL DEFAULT '',
+    mode TEXT NOT NULL DEFAULT 'chat' CHECK(mode IN ('chat', 'code')),
+    chemin_travail TEXT NOT NULL DEFAULT '',
     date_creation DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -90,5 +92,17 @@ class Database:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         with self.transaction() as connection:
             connection.executescript(SCHEMA)
+            columns = {
+                row["name"]
+                for row in connection.execute("PRAGMA table_info(ia_dossiers)").fetchall()
+            }
+            if "mode" not in columns:
+                connection.execute(
+                    "ALTER TABLE ia_dossiers ADD COLUMN mode TEXT NOT NULL DEFAULT 'chat'"
+                )
+            if "chemin_travail" not in columns:
+                connection.execute(
+                    "ALTER TABLE ia_dossiers "
+                    "ADD COLUMN chemin_travail TEXT NOT NULL DEFAULT ''"
+                )
             connection.execute("PRAGMA journal_mode = WAL")
-

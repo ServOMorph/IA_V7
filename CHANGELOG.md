@@ -1,3 +1,13 @@
+## v2.2 — 2026-08-13
+
+### Ajouté
+- Mode Code accessible depuis le header, avec identité visuelle dédiée et dossiers de travail séparés de Chat.
+- Dossiers Code persistants avec chemin de travail absolu requis et création de conversations dans chaque dossier.
+
+### Modifié
+- Schéma SQLite et API des dossiers étendus avec migration des bases existantes.
+- Couverture des tests API, SQLite et Playwright pour le mode Code.
+
 ## v2.1 — 2026-08-01
 
 ### Corrigé

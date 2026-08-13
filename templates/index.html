@@ -20,7 +20,14 @@
             <div class="app-brand">SérénIA Tech</div>
             <div class="app-product">IA locale</div>
         </div>
-        <span class="app-version">V7 standalone</span>
+        <nav class="app-mode-switch" aria-label="Mode de travail">
+            <button id="ia-mode-chat" class="app-mode-button active" type="button" aria-pressed="true">Chat</button>
+            <button id="ia-mode-code" class="app-mode-button" type="button" aria-pressed="false">Code</button>
+        </nav>
+        <div class="app-header-meta">
+            <span id="ia-mode-actif" class="app-current-mode">Chat</span>
+            <span class="app-version">V7 standalone</span>
+        </div>
     </header>
     <main id="panel-ia" class="main-panel active">
         <div class="ia-layout">
@@ -64,6 +71,23 @@
             </div>
             <div id="ia-help-commandes" class="ia-help-commandes"></div>
         </div>
+    </div>
+    <div id="ia-modal-dossier" class="ia-modal" role="dialog" aria-modal="true" aria-labelledby="ia-modal-dossier-titre" hidden>
+        <form id="ia-form-dossier" class="ia-modal-contenu">
+            <div class="ia-modal-entete">
+                <h2 id="ia-modal-dossier-titre">Nouveau dossier</h2>
+                <button id="ia-btn-fermer-dossier" class="ia-btn-ghost" type="button" aria-label="Fermer">Fermer</button>
+            </div>
+            <label class="ia-form-label" for="ia-dossier-nom">Nom</label>
+            <input id="ia-dossier-nom" class="ia-form-input" type="text" required maxlength="200" autocomplete="off">
+            <div id="ia-dossier-chemin-zone" hidden>
+                <label class="ia-form-label" for="ia-dossier-chemin">Dossier de travail</label>
+                <input id="ia-dossier-chemin" class="ia-form-input" type="text" required placeholder="C:\\chemin\\vers\\le\\projet" autocomplete="off">
+                <p class="ia-form-aide">Indiquez le chemin absolu d’un dossier existant.</p>
+            </div>
+            <p id="ia-dossier-erreur" class="ia-form-erreur" role="alert" hidden></p>
+            <button class="ia-btn-primary" type="submit">Ajouter le dossier</button>
+        </form>
     </div>
     <noscript>JavaScript doit être activé pour utiliser IA V7.</noscript>
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>

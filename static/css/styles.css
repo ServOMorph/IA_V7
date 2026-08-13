@@ -52,6 +52,13 @@ body {
     line-height: 1.6;
 }
 
+body.ia-mode-code {
+    --color-primary: rgb(167, 139, 250);
+    --color-primary-dark: rgb(109, 74, 194);
+    --color-primary-light: rgb(221, 214, 254);
+    --color-primary-alpha: rgba(124, 58, 237, 0.12);
+}
+
 button, select, textarea, input { font: inherit; }
 
 .app-header {
@@ -66,6 +73,12 @@ button, select, textarea, input { font: inherit; }
 
 .app-brand { font: 700 1rem var(--font-display); color: var(--color-dark); }
 .app-product { font-size: 0.78rem; color: var(--color-text-muted); }
+.app-mode-switch { display: flex; gap: 4px; padding: 4px; border: 1px solid var(--color-bg-dark); border-radius: var(--radius-full); }
+.app-mode-button { border: 0; border-radius: var(--radius-full); padding: 5px 14px; background: transparent; color: var(--color-text-muted); font-size: 0.8rem; font-weight: 700; cursor: pointer; }
+.app-mode-button:hover { background: var(--color-bg-dark); color: var(--color-text); }
+.app-mode-button.active { background: var(--color-primary); color: var(--color-dark); }
+.app-header-meta { display: flex; align-items: center; gap: var(--space-sm); }
+.app-current-mode { color: var(--color-primary-dark); font: 700 0.8rem var(--font-display); text-transform: uppercase; letter-spacing: 0.08em; }
 .app-version { font-size: 0.72rem; color: var(--color-text-muted); letter-spacing: 0.03em; }
 .main-panel { padding: var(--space-lg); }
 
@@ -89,6 +102,7 @@ button, select, textarea, input { font: inherit; }
 .ia-dossier-nom { flex: 1; font-weight: 600; font-size: 0.85rem; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ia-dossier-convs { margin-left: 16px; }
 .ia-dossier-prompt-zone { margin: 4px 0 4px 16px; }
+.ia-dossier-chemin { margin: -2px 6px 4px 24px; color: var(--color-text-muted); font: 0.7rem monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ia-prompt-input { width: 100%; min-height: 50px; font-size: 0.8rem; border: 1px solid var(--color-bg-dark); border-radius: var(--radius-sm); padding: 6px; resize: vertical; background: var(--color-bg); color: var(--color-text); margin-bottom: 4px; }
 .ia-conv { display: flex; align-items: center; gap: 4px; padding: 5px 6px; border-radius: var(--radius-sm); cursor: pointer; }
 .ia-conv:hover { background: var(--color-bg-dark); }
@@ -147,6 +161,10 @@ button, select, textarea, input { font: inherit; }
 .ia-help-commande { padding: var(--space-sm); border: 1px solid var(--color-bg-dark); border-radius: var(--radius-sm); }
 .ia-help-commande strong { display: block; color: var(--color-primary-dark); }
 .ia-help-commande span { font-size: 0.85rem; color: var(--color-text-muted); }
+.ia-form-label { display: block; margin-bottom: 4px; font-size: 0.85rem; font-weight: 600; }
+.ia-form-input { width: 100%; margin-bottom: var(--space-sm); padding: 8px 10px; border: 1px solid var(--color-bg-dark); border-radius: var(--radius-sm); background: var(--color-bg); color: var(--color-text); }
+.ia-form-aide { margin: -8px 0 var(--space-sm); font-size: 0.75rem; color: var(--color-text-muted); }
+.ia-form-erreur { margin: 0 0 var(--space-sm); font-size: 0.8rem; color: var(--color-error); }
 
 #ia-capture-overlay { position: fixed; inset: 0; z-index: 100; cursor: crosshair; background: rgba(0, 0, 0, 0.25); }
 .ia-capture-aide { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); background: var(--color-bg); color: var(--color-text); padding: 6px 14px; border-radius: var(--radius-md); font-size: 0.85rem; pointer-events: none; }
@@ -178,5 +196,6 @@ button, select, textarea, input { font: inherit; }
     .ia-chat { min-height: 60vh; }
     .ia-bulle { max-width: 92%; }
     .ia-titre-conv { width: 100%; margin-left: 0; }
+    .app-current-mode, .app-version { display: none; }
 }
 

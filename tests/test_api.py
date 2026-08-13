@@ -34,8 +34,46 @@ def test_folder_crud(client):
 
 def test_folder_validation(client):
     assert client.post("/api/ia/dossiers", json={"nom": " "}).status_code == 400
+    assert client.get("/api/ia/dossiers?mode=invalide").status_code == 400
+    assert client.post("/api/ia/dossiers", json={"nom": "X", "mode": "invalide"}).status_code == 400
+    assert client.post("/api/ia/dossiers", json={"nom": "X", "mode": "code"}).status_code == 400
     assert client.put("/api/ia/dossiers/999", json={}).status_code == 400
     assert client.put("/api/ia/dossiers/999", json={"nom": "Valide"}).status_code == 404
+
+
+def test_code_work_folder_crud(client, tmp_path):
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    response = client.post(
+        "/api/ia/dossiers",
+        json={"nom": "Application", "mode": "code", "chemin_travail": str(workspace)},
+    )
+    assert response.status_code == 201
+    folder = response.get_json()
+    assert folder["mode"] == "code"
+    assert folder["chemin_travail"] == str(workspace)
+    assert client.get("/api/ia/dossiers?mode=code").get_json() == [folder]
+    assert client.get("/api/ia/dossiers?mode=chat").get_json() == []
+
+    new_workspace = tmp_path / "autre-workspace"
+    new_workspace.mkdir()
+    updated = client.put(
+        f"/api/ia/dossiers/{folder['id']}",
+        json={"chemin_travail": str(new_workspace)},
+    )
+    assert updated.status_code == 200
+    assert updated.get_json()["chemin_travail"] == str(new_workspace)
+
+
+def test_chat_folder_cannot_receive_work_path(client, tmp_path):
+    folder = client.post("/api/ia/dossiers", json={"nom": "Chat"}).get_json()
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    response = client.put(
+        f"/api/ia/dossiers/{folder['id']}",
+        json={"chemin_travail": str(workspace)},
+    )
+    assert response.status_code == 400
 
 
 def test_conversation_crud_and_filter(client):
@@ -109,6 +147,29 @@ def test_ephemeral_chat_is_not_persisted(client):
         f"/api/ia/conversations/{conversation['id']}/messages"
     ).get_json() == []
     assert client.post(f"/api/ia/conversations/{conversation['id']}/titre-auto").status_code == 400
+
+
+def test_code_folder_keeps_persistent_and_ephemeral_conversations_distinct(client, tmp_path):
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    folder = client.post(
+        "/api/ia/dossiers",
+        json={"nom": "Projet Code", "mode": "code", "chemin_travail": str(workspace)},
+    ).get_json()
+    persistent = create_conversation(client, dossier_id=folder["id"])
+    ephemeral = create_conversation(client, dossier_id=folder["id"], ephemere=True)
+
+    client.post(
+        f"/api/ia/conversations/{persistent['id']}/chat",
+        json={"message": "À conserver"},
+    ).get_data()
+    client.post(
+        f"/api/ia/conversations/{ephemeral['id']}/chat",
+        json={"message": "À ne pas conserver"},
+    ).get_data()
+
+    assert len(client.get(f"/api/ia/conversations/{persistent['id']}/messages").get_json()) == 2
+    assert client.get(f"/api/ia/conversations/{ephemeral['id']}/messages").get_json() == []
 
 
 def test_chat_validation(client):

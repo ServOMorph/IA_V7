@@ -29,8 +29,10 @@ test('parcours UI complet sur ordinateur', async ({ page, context }, testInfo) =
   await page.emulateMedia({ colorScheme: 'light' });
   await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(255, 255, 255)');
 
-  page.once('dialog', dialog => dialog.accept('TEST_UI_AUTOMATISE'));
   await page.locator('#ia-btn-nouveau-dossier').click();
+  await expect(page.locator('#ia-modal-dossier')).toBeVisible();
+  await page.locator('#ia-dossier-nom').fill('TEST_UI_AUTOMATISE');
+  await page.locator('#ia-form-dossier button[type="submit"]').click();
   let folder = page.locator('.ia-dossier').filter({ hasText: 'TEST_UI_AUTOMATISE' });
   await expect(folder).toHaveCount(1);
 
@@ -220,6 +222,55 @@ test('parcours UI complet sur ordinateur', async ({ page, context }, testInfo) =
 
   expect(pageErrors).toEqual([]);
   expect(consoleErrors.filter(message => !message.includes('503'))).toEqual([]);
+});
+
+
+test('mode Code et dossiers de travail', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'desktop');
+  await page.goto('/');
+
+  await page.locator('#ia-mode-code').click();
+  await expect(page.locator('body')).toHaveClass(/ia-mode-code/);
+  await expect(page.locator('#ia-mode-actif')).toHaveText('Code');
+  await expect(page.locator('#ia-btn-nouvelle-conv')).toBeHidden();
+
+  const codePrimary = await page.locator('body').evaluate(element =>
+    getComputedStyle(element).getPropertyValue('--color-primary').trim()
+  );
+  expect(codePrimary).toBe('rgb(167, 139, 250)');
+
+  await page.locator('#ia-btn-nouveau-dossier').click();
+  await expect(page.locator('#ia-dossier-chemin-zone')).toBeVisible();
+  await page.locator('#ia-dossier-nom').fill('PROJET_CODE_UI');
+  await page.locator('#ia-dossier-chemin').fill('D:\\ServOMorph\\IA_V7');
+  await page.locator('#ia-form-dossier button[type="submit"]').click();
+
+  const folder = page.locator('.ia-dossier').filter({ hasText: 'PROJET_CODE_UI' });
+  await expect(folder).toHaveCount(1);
+  await expect(folder.locator('.ia-dossier-chemin')).toHaveText('D:\\ServOMorph\\IA_V7');
+  await folder.locator('.ia-dossier-nouvelle-conv').click();
+  await expect(page.locator('#ia-titre-conv')).toHaveText('Nouvelle conversation');
+  await page.locator('#ia-input').fill('Conversation Code persistante');
+  await page.locator('#ia-btn-envoyer').click();
+  await expect(page.locator('.ia-bulle-assistant')).toContainText('TEST OK');
+
+  await page.locator('#ia-ephemere').check();
+  await folder.locator('.ia-dossier-nouvelle-conv').click();
+  await expect(page.locator('#ia-titre-conv')).toHaveText('Éphémère');
+  await page.locator('#ia-input').fill('Conversation Code éphémère');
+  await page.locator('#ia-btn-envoyer').click();
+  await expect(page.locator('.ia-bulle-assistant')).toContainText('TEST OK');
+
+  await page.reload();
+  await page.locator('#ia-mode-code').click();
+  const persistedFolder = page.locator('.ia-dossier').filter({ hasText: 'PROJET_CODE_UI' });
+  await persistedFolder.locator('.ia-dossier-toggle').click();
+  await expect(persistedFolder.locator('.ia-conv')).toHaveCount(1);
+
+  await page.locator('#ia-mode-chat').click();
+  await expect(page.locator('#ia-mode-actif')).toHaveText('Chat');
+  await expect(page.locator('.ia-dossier').filter({ hasText: 'PROJET_CODE_UI' })).toHaveCount(0);
+  await expect(page.locator('#ia-btn-nouvelle-conv')).toBeVisible();
 });
 
 

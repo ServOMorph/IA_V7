@@ -15,18 +15,38 @@ class IaRepository:
     def __init__(self, database: Database) -> None:
         self.database = database
 
-    def list_folders(self) -> list[dict[str, Any]]:
+    def list_folders(self, mode: str | None = None) -> list[dict[str, Any]]:
         with self.database.session() as connection:
-            rows = connection.execute(
-                "SELECT * FROM ia_dossiers ORDER BY nom COLLATE NOCASE"
-            ).fetchall()
+            if mode is None:
+                rows = connection.execute(
+                    "SELECT * FROM ia_dossiers ORDER BY nom COLLATE NOCASE"
+                ).fetchall()
+            else:
+                rows = connection.execute(
+                    "SELECT * FROM ia_dossiers WHERE mode = ? ORDER BY nom COLLATE NOCASE",
+                    (mode,),
+                ).fetchall()
         return [dict(row) for row in rows]
 
-    def create_folder(self, name: str, system_prompt: str = "") -> dict[str, Any]:
+    def get_folder(self, folder_id: int) -> dict[str, Any] | None:
+        with self.database.session() as connection:
+            row = connection.execute(
+                "SELECT * FROM ia_dossiers WHERE id = ?", (folder_id,)
+            ).fetchone()
+        return row_to_dict(row)
+
+    def create_folder(
+        self,
+        name: str,
+        system_prompt: str = "",
+        mode: str = "chat",
+        work_path: str = "",
+    ) -> dict[str, Any]:
         with self.database.transaction() as connection:
             cursor = connection.execute(
-                "INSERT INTO ia_dossiers (nom, system_prompt) VALUES (?, ?)",
-                (name, system_prompt),
+                "INSERT INTO ia_dossiers (nom, system_prompt, mode, chemin_travail) "
+                "VALUES (?, ?, ?, ?)",
+                (name, system_prompt, mode, work_path),
             )
             row = connection.execute(
                 "SELECT * FROM ia_dossiers WHERE id = ?", (cursor.lastrowid,)
@@ -177,4 +197,3 @@ class IaRepository:
                 except sqlite3.IntegrityError:
                     pass
         return inserted
-

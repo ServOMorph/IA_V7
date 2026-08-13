@@ -1,4 +1,4 @@
-# Signals — ia_v7 (MAJ 2026-08-01)
+# Signals — ia_v7 (MAJ 2026-08-13)
 
 ## Actions ouvertes
 - [P1] Test manuel de `/rgpd` dans l'app lancée (`python run.py`), sur le fichier de démo.
@@ -19,28 +19,27 @@
 - `/write` et `/rgpd` : en conversation éphémère, rien n'est persisté ; le texte collé à `/rgpd` avec PII est persisté en historique SQLite dans une conversation normale.
 - Le benchmark `/rgpd` est reproductible : 21/26 cas conformes, 24/29 PII absentes littéralement et 21 cas obligatoires verrouillés.
 - Les limites `/rgpd` restantes sont les noms sans civilité, pseudonymes et PII écrites en lettres ou fragmentées ; aucun NER ni mode strict n'est implémenté.
-- Tests courants : test_chat.py vert après restriction de la consigne livrable ; 58 pytest et Playwright non relancés en intégralité cette session.
+- Mode Code : les dossiers de travail possèdent un chemin absolu existant, les dossiers Chat et Code sont isolés et le mode est visible dans le header.
+- Tests courants : 63 pytest et Playwright desktop/mobile verts après l’ajout du mode Code.
 
-## Dernière session (2026-08-01)
+## Dernière session (2026-08-13)
 <!-- Écrasé intégralement par /close. Synthèse < 25 lignes. -->
-# Session du 2026-08-01
+# Session du 2026-08-13
 
 ## Décisions prises
-- Modèle par défaut changé pour `gemma4:12b` (tag confirmé explicitement par l'utilisateur malgré absence du catalogue Ollama connu).
-- `DELIVERABLE_INSTRUCTION` restreinte : le bloc ```livrable``` ne se déclenche plus que sur demande explicite, plus sur simple reformulation/traduction/résumé.
+- Le mode Code réutilise l’écran d’agent existant, avec dossiers de travail séparés du mode Chat.
+- Un dossier Code requiert un chemin absolu vers un dossier existant.
 
 ## Livrables produits ou modifiés
-- `src/ia_v7/config.py` : fallback `default_model` = `gemma4:12b`.
-- `data/default_model.txt`, `.tmp_ui_data/default_model.txt` : alignés sur `gemma4:12b` (fichiers gitignorés).
-- `src/ia_v7/services/chat.py` : `DELIVERABLE_INSTRUCTION` reformulée.
-- `README.md`, `CHANGELOG.md` (v2.1) : mis à jour.
+- API et SQLite : modes de dossier et chemins de travail persistants, avec migration des bases existantes.
+- Interface : bascule Chat/Code, couleur spécifique, modale de création de dossier et affichage du chemin.
+- Tests API, SQLite et Playwright : ajoutés et exécutés.
 
 ## Hypothèses validées / invalidées
-- VALIDE : `tests/test_chat.py` reste vert après la reformulation de la consigne (format `livrable\n...\n` inchangé).
-- EN ATTENTE : confirmation en usage réel que la restriction élimine bien le sur-déclenchement du bloc livrable.
+- VALIDE : les dossiers Code sont isolés de la liste Chat ; une conversation persistante reste visible après rechargement, une éphémère non.
 
 ## Prochaine étape exacte
-Lancer `python run.py`, observer plusieurs échanges réels (avec et sans demande explicite de livrable) et le scénario manuel `/rgpd`.
+Lancer `python run.py` et exécuter les scénarios manuels `/rgpd` et de demande explicite de livrable.
 
 ## Question bloquante pour la session suivante
 Aucune

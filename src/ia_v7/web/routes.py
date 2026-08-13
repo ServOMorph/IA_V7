@@ -3,6 +3,7 @@ from __future__ import annotations
 import base64
 import binascii
 from datetime import datetime
+from pathlib import Path
 import sqlite3
 from typing import Any
 
@@ -13,6 +14,7 @@ from ia_v7.services.commands import is_command
 
 web_bp = Blueprint("web", __name__)
 api_bp = Blueprint("ia_api", __name__, url_prefix="/api/ia")
+FOLDER_MODES = {"chat", "code"}
 
 
 def services() -> dict[str, Any]:
@@ -39,8 +41,21 @@ def health() -> tuple[Response, int] | Response:
 
 
 @api_bp.get("/dossiers")
-def list_folders() -> Response:
-    return jsonify(services()["repository"].list_folders())
+def list_folders() -> tuple[Response, int] | Response:
+    mode = request.args.get("mode")
+    if mode is not None and mode not in FOLDER_MODES:
+        return jsonify({"error": "Mode de dossier invalide"}), 400
+    return jsonify(services()["repository"].list_folders(mode))
+
+
+def folder_work_path(data: dict[str, Any]) -> tuple[str | None, tuple[Response, int] | None]:
+    work_path = str(data.get("chemin_travail") or "").strip()
+    path = Path(work_path)
+    if not work_path:
+        return None, (jsonify({"error": "Le chemin de travail est requis"}), 400)
+    if not path.is_absolute() or not path.is_dir():
+        return None, (jsonify({"error": "Le chemin de travail doit être un dossier existant"}), 400)
+    return str(path), None
 
 
 @api_bp.post("/dossiers")
@@ -49,8 +64,19 @@ def create_folder() -> tuple[Response, int]:
     name = str(data.get("nom") or "").strip()
     if not name:
         return jsonify({"error": "Le nom est requis"}), 400
+    mode = str(data.get("mode") or "chat").strip().lower()
+    if mode not in FOLDER_MODES:
+        return jsonify({"error": "Mode de dossier invalide"}), 400
+    work_path = ""
+    if mode == "code":
+        work_path, error = folder_work_path(data)
+        if error:
+            return error
     folder = services()["repository"].create_folder(
-        name, str(data.get("system_prompt") or "")
+        name,
+        str(data.get("system_prompt") or ""),
+        mode=mode,
+        work_path=work_path,
     )
     return jsonify(folder), 201
 
@@ -66,6 +92,16 @@ def update_folder(folder_id: int) -> tuple[Response, int] | Response:
         fields["nom"] = name
     if "system_prompt" in data:
         fields["system_prompt"] = str(data.get("system_prompt") or "")
+    if "chemin_travail" in data:
+        folder = services()["repository"].get_folder(folder_id)
+        if folder is None:
+            return jsonify({"error": "Dossier introuvable"}), 404
+        if folder["mode"] != "code":
+            return jsonify({"error": "Ce dossier n'est pas un espace de travail Code"}), 400
+        work_path, error = folder_work_path(data)
+        if error:
+            return error
+        fields["chemin_travail"] = work_path
     if not fields:
         return jsonify({"error": "Aucun champ à modifier"}), 400
     folder = services()["repository"].update_folder(folder_id, fields)
@@ -321,4 +357,3 @@ def auto_title(conversation_id: int) -> tuple[Response, int] | Response:
     except Exception as error:
         return jsonify({"error": str(error)}), 500
     return jsonify({"titre": title})
-

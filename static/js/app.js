@@ -5,6 +5,7 @@ let iaInitialise = false;
 let iaStatutTimer = null;
 let iaCommandes = [];
 let iaSuggestionIndex = -1;
+let iaModeActuel = 'chat';
 const iaDossiersOuverts = new Set();
 const iaClickTimers = {};
 const iaLivrables = new Map();
@@ -273,14 +274,16 @@ function iaNaviguerSuggestions(e) {
 
 async function iaChargerArbo() {
     const [dRes, cRes] = await Promise.all([
-        iaFetchJSON('/api/ia/dossiers'),
+        iaFetchJSON('/api/ia/dossiers?mode=' + iaModeActuel),
         iaFetchJSON('/api/ia/conversations'),
     ]);
     const dossiers = dRes.data || [];
     const convs = cRes.data || [];
     const arbo = document.getElementById('ia-arbo');
 
-    const sansDossier = convs.filter(c => c.dossier_id == null && !c.ephemere);
+    const sansDossier = iaModeActuel === 'chat'
+        ? convs.filter(c => c.dossier_id == null && !c.ephemere)
+        : [];
     let html = '';
 
     for (const d of dossiers) {
@@ -294,6 +297,7 @@ async function iaChargerArbo() {
                 <button class="ia-icon-btn ia-dossier-prompt" data-id="${d.id}" title="System prompt">⚙</button>
                 <button class="ia-icon-btn ia-dossier-suppr" data-id="${d.id}" title="Supprimer">✕</button>
             </div>
+            ${iaModeActuel === 'code' ? `<div class="ia-dossier-chemin" title="${iaEsc(d.chemin_travail)}">${iaEsc(d.chemin_travail)}</div>` : ''}
             <div class="ia-dossier-prompt-zone" data-id="${d.id}" style="display:none;">
                 <textarea class="ia-prompt-input" data-id="${d.id}" placeholder="System prompt du dossier…">${iaEsc(d.system_prompt)}</textarea>
                 <button class="ia-btn-mini ia-prompt-save" data-id="${d.id}">Enregistrer</button>
@@ -446,14 +450,61 @@ async function iaSupprimerDossier(id) {
 // --- Création -----------------------------------------------------------
 
 async function iaNouveauDossier() {
-    const nom = prompt('Nom du dossier :');
-    if (!nom || !nom.trim()) return;
-    await iaFetchJSON('/api/ia/dossiers', {
+    const modal = document.getElementById('ia-modal-dossier');
+    const form = document.getElementById('ia-form-dossier');
+    const nom = document.getElementById('ia-dossier-nom');
+    const cheminZone = document.getElementById('ia-dossier-chemin-zone');
+    const chemin = document.getElementById('ia-dossier-chemin');
+    const erreur = document.getElementById('ia-dossier-erreur');
+    form.reset();
+    erreur.hidden = true;
+    cheminZone.hidden = iaModeActuel !== 'code';
+    chemin.required = iaModeActuel === 'code';
+    document.getElementById('ia-modal-dossier-titre').textContent =
+        iaModeActuel === 'code' ? 'Nouveau dossier de travail' : 'Nouveau dossier';
+    modal.hidden = false;
+    nom.focus();
+}
+
+function iaFermerModalDossier() {
+    document.getElementById('ia-modal-dossier').hidden = true;
+}
+
+async function iaCreerDossier(e) {
+    e.preventDefault();
+    const nom = document.getElementById('ia-dossier-nom').value.trim();
+    const chemin = document.getElementById('ia-dossier-chemin').value.trim();
+    const erreur = document.getElementById('ia-dossier-erreur');
+    const corps = { nom, mode: iaModeActuel };
+    if (iaModeActuel === 'code') corps.chemin_travail = chemin;
+    const { ok, data } = await iaFetchJSON('/api/ia/dossiers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nom: nom.trim() }),
+        body: JSON.stringify(corps),
     });
+    if (!ok) {
+        erreur.textContent = (data && data.error) || 'Création impossible';
+        erreur.hidden = false;
+        return;
+    }
+    iaFermerModalDossier();
     iaChargerArbo();
+}
+
+async function iaChangerMode(mode) {
+    if (mode === iaModeActuel) return;
+    iaModeActuel = mode;
+    iaConvCourante = null;
+    document.body.classList.toggle('ia-mode-code', mode === 'code');
+    document.getElementById('ia-mode-chat').classList.toggle('active', mode === 'chat');
+    document.getElementById('ia-mode-code').classList.toggle('active', mode === 'code');
+    document.getElementById('ia-mode-chat').setAttribute('aria-pressed', String(mode === 'chat'));
+    document.getElementById('ia-mode-code').setAttribute('aria-pressed', String(mode === 'code'));
+    document.getElementById('ia-mode-actif').textContent = mode === 'code' ? 'Code' : 'Chat';
+    document.getElementById('ia-btn-nouvelle-conv').hidden = mode === 'code';
+    document.getElementById('ia-messages').innerHTML = '';
+    document.getElementById('ia-titre-conv').textContent = '';
+    await iaChargerArbo();
 }
 
 async function iaNouvelleConversationDansDossier(dossierId) {
@@ -872,6 +923,13 @@ function iaBrancherUI() {
     iaInitialise = true;
     document.getElementById('ia-btn-nouvelle-conv').onclick = iaNouvelleConversation;
     document.getElementById('ia-btn-nouveau-dossier').onclick = iaNouveauDossier;
+    document.getElementById('ia-mode-chat').onclick = () => iaChangerMode('chat');
+    document.getElementById('ia-mode-code').onclick = () => iaChangerMode('code');
+    document.getElementById('ia-form-dossier').onsubmit = iaCreerDossier;
+    document.getElementById('ia-btn-fermer-dossier').onclick = iaFermerModalDossier;
+    document.getElementById('ia-modal-dossier').onclick = (e) => {
+        if (e.target.id === 'ia-modal-dossier') iaFermerModalDossier();
+    };
     document.getElementById('ia-btn-envoyer').onclick = iaEnvoyer;
     document.getElementById('ia-btn-stop').onclick = iaStop;
     document.getElementById('ia-btn-serveur').onclick = iaToggleServeur;

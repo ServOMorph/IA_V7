@@ -7,16 +7,13 @@ Application autonome pilotant Ollama local : gestion de dossiers et conversation
 Python 3.11+, SQLite, Node.js 20+ et Playwright pour les tests UI, Ollama local
 
 ## État actuel (réécrit intégralement à chaque /close)
-Commandes disponibles : `/help`, `/write`, `/rgpd` ; `/help` est une modale locale sans persistance dans la conversation.
-L'anonymisation PII fonctionne en mode fichier ou texte ; le benchmark repose sur 26 cas synthétiques, dont 21 cas obligatoires verrouillés.
-`DELIVERABLE_INSTRUCTION` ne déclenche plus le bloc ```livrable``` que sur demande explicite ; à confirmer sur des échanges Ollama réels.
-Modèle par défaut : `gemma4:12b`.
-Tests verts : test_chat.py confirmé cette session ; suite complète (58 pytest, Playwright) non relancée. En attente : test manuel `/rgpd`, confirmation en usage réel de la restriction livrable, décisions sur les cas RGPD ambigus.
+Les modes Chat et Code sont accessibles dans le header ; Code utilise une identité violette et l’écran d’agent existant.
+Les dossiers Code conservent un chemin de travail absolu valide et sont isolés des dossiers Chat.
+Les conversations restent créées dans les dossiers et le mode éphémère est conservé.
+Tests verts : 63 pytest ; Playwright desktop et mobile.
+En attente : tests manuels `/rgpd` et livrables, décisions RGPD ambiguës.
 
 ## Décisions structurantes (append only — 10 entrées max, archiver au-delà)
-- 2026-07-17 : Ajout du système de commandes `/xxx` (parseur, registre, `/help`, `/write`) intercepté avant Ollama.
-- 2026-07-17 : Roadmaps terminées archivées dans `_archives/` (avec `index.md` de suivi).
-- 2026-07-17 : `/rgpd` en anonymisation regex déterministe (pas de LLM) ; noms détectés uniquement avec civilité.
 - 2026-07-17 : Capture d'écran via html2canvas vendorisé (pas de getDisplayMedia) ; PNG dans `rapports_erreurs_manuels/` (`IA_V7_CAPTURES_DIR`).
 - 2026-07-17 : `DELIVERABLE_INSTRUCTION` reformulée de façon plus impérative suite à un manquement du modèle ; fallback client-side écarté pour l'instant.
 - 2026-07-17 : Le benchmark `/rgpd` devient le garde-fou de non-régression de l'anonymisation déterministe.
@@ -26,3 +23,4 @@ Tests verts : test_chat.py confirmé cette session ; suite complète (58 pytest,
 - 2026-07-19 : La consigne `livrable` utilise des retours à la ligne réels et `/help` est une modale locale non persistée.
 - 2026-08-01 : `DELIVERABLE_INSTRUCTION` restreinte au déclenchement sur demande explicite (au lieu de toute reformulation/traduction/résumé).
 - 2026-08-01 : Modèle par défaut changé pour `gemma4:12b`.
+- 2026-08-13 : Les espaces Code sont des dossiers de travail persistants, séparés de Chat et associés à un chemin absolu existant.
