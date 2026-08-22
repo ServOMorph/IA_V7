@@ -6,6 +6,8 @@ Application autonome extraite du module IA de l’interface SérénIA Tech. Elle
 
 Les modes Chat et Code sont accessibles dans le header. Le mode Code garde l’écran d’agent et les fonctionnalités existantes, mais utilise une identité violette et isole ses dossiers de travail du mode Chat. La création d’un dossier Code exige un chemin absolu vers un dossier existant ; ce chemin est conservé avec le dossier.
 
+En mode Code, le LLM peut créer ou écraser des fichiers : il place leur contenu dans des blocs ```fichier:<chemin relatif>``` et ils sont écrits sous le dossier de travail du dossier (avec garde anti-traversal). La consigne et l’écriture sont actives uniquement pour les conversations d’un dossier Code ; un compte-rendu d’écriture est ajouté à la réponse. Le respect de la convention dépend du modèle Ollama utilisé.
+
 Commandes disponibles : `/help`, `/write <nom_fichier> [<path>]`, `/rgpd <chemin_fichier | texte>`. `/help` ouvre une modale locale, sans créer de message ni de conversation ; Entrée ferme l'aide et efface la saisie.
 
 Le benchmark `/rgpd` couvre 26 cas synthétiques et atteint 21 cas exactement conformes ; il verrouille 21 cas obligatoires de non-régression. Les IBAN à séparateurs atypiques, IPv4 valides, cartes validées par Luhn, adresses avec code postal/ville et emails à ponctuation Unicode sont pris en charge. Les noms sans civilité, pseudonymes et formats obfusqués ou fragmentés restent hors périmètre.
@@ -16,7 +18,7 @@ La consigne système impose un bloc ```livrable``` avec de vrais retours à la l
 
 Modèle par défaut : `gemma4:12b`.
 
-Tests verts : 63 pytest ; Playwright desktop et mobile.
+Tests verts : 73 pytest ; Playwright desktop et mobile.
 
 ## Prérequis
 

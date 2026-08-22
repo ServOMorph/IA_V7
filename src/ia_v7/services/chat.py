@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import re
+from pathlib import Path
 from typing import Any, Iterable
 
 from ia_v7.infrastructure.repository import IaRepository
@@ -16,6 +18,50 @@ DELIVERABLE_INSTRUCTION = (
     "explicite de livrable), réponds en texte normal, sans ce bloc. Ne mets pas "
     "de commentaires à l'intérieur du bloc."
 )
+
+CODE_FILE_INSTRUCTION = (
+    "Quand l'utilisateur te demande explicitement de créer ou modifier un "
+    "fichier, place son contenu complet dans un bloc "
+    "```fichier:<chemin_relatif>\n...\n```, avec un bloc distinct par fichier et "
+    "un chemin relatif au dossier de travail. N'utilise ce bloc que sur demande "
+    "explicite de création ou modification de fichier."
+)
+
+FILE_BLOCK_PATTERN = re.compile(r"```fichier:([^\n`]+)\n(.*?)\n```", re.DOTALL)
+
+
+def extract_file_blocks(content: str) -> list[tuple[str, str]]:
+    return [
+        (path.strip(), body)
+        for path, body in FILE_BLOCK_PATTERN.findall(content)
+        if path.strip()
+    ]
+
+
+def write_file_blocks(work_path: Path, content: str) -> str:
+    blocks = extract_file_blocks(content)
+    if not blocks:
+        return ""
+    root = work_path.resolve()
+    written: list[str] = []
+    errors: list[str] = []
+    for raw_path, body in blocks:
+        candidate = (root / raw_path).resolve()
+        if candidate == root or not candidate.is_relative_to(root):
+            errors.append(f"{raw_path} (hors du dossier de travail)")
+            continue
+        try:
+            candidate.parent.mkdir(parents=True, exist_ok=True)
+            candidate.write_text(body.strip() + "\n", encoding="utf-8")
+            written.append(str(candidate.relative_to(root)))
+        except OSError as error:
+            errors.append(f"{raw_path} ({error})")
+    lines: list[str] = []
+    if written:
+        lines.append("Fichier(s) écrit(s) : " + ", ".join(written))
+    if errors:
+        lines.append("Échec(s) : " + ", ".join(errors))
+    return "\n\n" + "\n".join(lines) if lines else ""
 
 
 class ChatService:
@@ -37,7 +83,11 @@ class ChatService:
             raise LookupError("Conversation introuvable")
         model = conversation["modele"] or self.ollama.get_default_model()
         base_prompt = self.repository.get_system_prompt(conversation["dossier_id"])
-        system_prompt = f"{base_prompt}\n\n{DELIVERABLE_INSTRUCTION}".strip()
+        system_prompt = f"{base_prompt}\n\n{DELIVERABLE_INSTRUCTION}"
+        folder = self._code_folder(conversation)
+        if folder is not None:
+            system_prompt = f"{system_prompt}\n\n{CODE_FILE_INSTRUCTION}"
+        system_prompt = system_prompt.strip()
         history = self.repository.list_messages(conversation_id)
         facts = self.repository.list_facts(conversation_id)
         messages = build_context(system_prompt, history, user_message, facts, self.num_ctx)
@@ -45,9 +95,19 @@ class ChatService:
             self.repository.append_message(conversation_id, "user", user_message)
         return conversation, model, messages
 
+    def _code_folder(self, conversation: dict[str, Any]) -> dict[str, Any] | None:
+        folder_id = conversation["dossier_id"]
+        if folder_id is None:
+            return None
+        folder = self.repository.get_folder(folder_id)
+        if folder is None or folder["mode"] != "code" or not folder["chemin_travail"]:
+            return None
+        return folder
+
     def stream_chat(self, conversation_id: int, user_message: str) -> Iterable[str]:
         conversation, model, messages = self.prepare_chat(conversation_id, user_message)
         ephemeral = bool(conversation["ephemere"])
+        folder = self._code_folder(conversation)
         chunks: list[str] = []
         try:
             for line in self.ollama.chat_stream(model, messages):
@@ -61,6 +121,11 @@ class ChatService:
                     yield f"data: {json.dumps({'contenu': chunk}, ensure_ascii=False)}\n\n"
                 if payload.get("done"):
                     break
+            if folder is not None:
+                report = write_file_blocks(Path(folder["chemin_travail"]), "".join(chunks))
+                if report:
+                    chunks.append(report)
+                    yield f"data: {json.dumps({'contenu': report}, ensure_ascii=False)}\n\n"
             yield f"data: {json.dumps({'fin': True})}\n\n"
         except Exception as error:
             yield f"data: {json.dumps({'erreur': str(error)}, ensure_ascii=False)}\n\n"

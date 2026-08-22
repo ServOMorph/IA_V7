@@ -1,3 +1,9 @@
+## v2.3 — 2026-08-22
+
+### Ajouté
+- Création de fichiers par le LLM en mode Code : blocs ```fichier:<chemin relatif>``` écrits sous le dossier de travail du dossier, écrasement autorisé, garde anti-traversal, compte-rendu ajouté à la réponse.
+- Commande `/controle_pc` et script `.claude/scripts/pc_control.ps1` pour piloter l'UI ouverte (screenshots, clics bornés sur la fenêtre cible, collage via presse-papiers).
+
 ## v2.2 — 2026-08-13
 
 ### Ajouté
