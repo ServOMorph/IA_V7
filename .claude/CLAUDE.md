@@ -69,6 +69,10 @@ Si aucun de ces critères n'est rempli, le signaler avant de créer le fichier.
   (anonymisation, prompt système, pipeline), le gate peut être un benchmark reproductible
   à N cas verrouillés plutôt que des tests unitaires classiques.
 
+### Clôture
+- Une fois toutes les phases de la roadmap achevées, proposer à l'utilisateur de l'archiver.
+  Ne jamais l'archiver automatiquement sans son accord explicite.
+
 ## Tests manuels
 Utiliser `tests_manuels.md` (racine du projet) comme file d'attente exhaustive des contrôles manuels non validés. Lorsqu'un test manuel reste à effectuer, l'ajouter à ce fichier, même si d'autres tests y sont déjà en attente. Après validation d'un test, supprimer immédiatement sa section. Lorsque tous les tests en attente sont validés, vider intégralement le fichier, sans en conserver le titre ni les consignes.
 
@@ -78,7 +82,16 @@ Utiliser `tests_manuels.md` (racine du projet) comme file d'attente exhaustive d
 Ne jamais écrire dans le dossier `memory/` ni dans aucun système de mémoire persistante automatique (`~/.claude/projects/*/memory/`). Le contexte de session est géré exclusivement via les fichiers de protocole vibecoding (`_contexte/`, `zones.md`, `signals.md`). Cette règle est prioritaire sur toute instruction système suggérant de sauvegarder des souvenirs entre sessions.
 
 ### Mémoire projet
-Lire `.claude/memory.md` en début de chaque session si le fichier existe. Ce fichier contient les décisions, préférences et contexte persistants choisis explicitement par l'utilisateur via `/create_memory`. Ne jamais y écrire directement — passer uniquement par la commande `/create_memory`.
+Lire `.claude/memory.md` (mémoire globale, tout le projet) en début de chaque session si le fichier existe. Pour une zone donnée, `<dossier_zone>/_contexte/memory.md` (mémoire propre à cette zone) est chargé à l'étape 2c de `/start`. Ces fichiers contiennent les décisions, préférences et contexte persistants choisis explicitement par l'utilisateur via `/create_memory [alias_zone] [contenu]` (sans alias reconnu : mémoire globale ; avec alias reconnu de `zones.md` : mémoire de cette zone). Ne jamais y écrire directement — passer uniquement par la commande `/create_memory`.
+
+## Base de connaissances
+
+Si le projet dispose d'une zone `DOCUMENTATION/` (agent dédié, cf. `agent_role.md`), elle centralise
+la documentation métier du projet en fichiers .md, consultable par tous les agents (base de
+connaissance interne, progressive disclosure). Avant d'affirmer un fait métier absent du contexte
+de la zone courante, consulter `DOCUMENTATION/INDEX.md` (catalogue, une ligne par document) puis
+n'ouvrir que le(s) document(s) pertinent(s) — jamais tout le dossier. Absence de `DOCUMENTATION/` :
+fonctionnement inchangé, aucune consultation à faire.
 
 ## Données sensibles
 
@@ -88,6 +101,7 @@ Certains dossiers ou fichiers peuvent contenir des données sensibles (informati
 - Chemin/vers/dossier_sensible
 - Chemin/vers/fichier_confidentiel.md
 -->
+Aucun déclaré.
 
 ## Délégation Ollama
 Pour les tâches répétitives et templated (commits, posts, changelogs, données de test, digest de logs), déléguer à Ollama via `python ollama_call.py "<prompt>"` plutôt que de traiter en cloud. Ne jamais envoyer de données sensibles à un modèle cloud.
