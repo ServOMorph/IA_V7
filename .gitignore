@@ -21,3 +21,4 @@ test-results/
 # Fichiers de test et captures temporaires contenant des donnees sensibles (PII)
 rapports_erreurs_manuels/*.png
 tests-perso/*_anonymise.md
+**/_contexte/journal_session.md
